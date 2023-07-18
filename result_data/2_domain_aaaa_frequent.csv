@@ -1,0 +1,7 @@
+domain,num_aaaa_fail,rate_all,num_aaaa_all,num_aaaa_success,rate_aaaa_fail
+www.chinauos.com,1024,45.51%,1024,0,100.00%
+www.baidu.com,658,29.24%,1182,524,55.67%
+hub5p.sandai.net,217,9.64%,217,0,100.00%
+rq.r9t1.com,211,9.38%,211,0,100.00%
+optimizationguide-pa.googleapis.com,140,6.22%,140,0,100.00%
+ntp.ubuntu.com,0,0.00%,1306,1306,0.00%
