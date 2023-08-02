@@ -1,5 +1,9 @@
 #data.py
 # 以下是有关数据统计的
+List_country=[]
+List_newgTLDs=[]
+Num_newgTLDs=0
+Num_manmade=0
 
 # 以下是DNS Fail相关统计
 Num_query_all=0         #响应总数
@@ -12,10 +16,6 @@ Num_query_a_fail=0      #查询a记录失败数
 Num_query_aaaa_all=0    #查询aaaa总数
 Num_query_aaaa_success=0#查询aaaa成功数
 Num_query_aaaa_fail=0   #查询aaaa失败数
-
-List_newgTLDs=[]
-Num_newgTLDs=0
-Num_manmade=0
 
 Dic_state={}
 Dic_record_num_all={}       #该种类的记录对应的查询数
@@ -47,3 +47,7 @@ Dic_resolver_public_num_a_all={}
 Dic_resolver_public_num_a_success={}
 Dic_resolver_public_num_aaaa_all={}
 Dic_resolver_public_num_aaaa_success={}
+
+#NXDomain
+Dic_nxdomain_num={}
+Dic_nxsld_num={}

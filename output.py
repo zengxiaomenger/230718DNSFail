@@ -2,6 +2,7 @@
 import os
 import csv
 import data
+
 def output0():#输出一些与数据集相关的东西
     dir_out='./result_data'
     file_name_dnsstatus='0_dns_status.csv'
@@ -23,14 +24,7 @@ def output0():#输出一些与数据集相关的东西
 def output1():#处理结果并输出
     dir_out='./result_data'
     file_name_type='1_type.csv'#存放不同类型查询数量、成功数量、失败数量、成功率
-    file_name_domain_a='2_domain_a.csv'#存放域名与a记录相关
-    file_name_domain_aaaa='2_domain_aaaa.csv'#存放域名与aaaa记录相关
     file_out_path_type=os.path.join(dir_out,file_name_type)
-    file_out_path_domain_a=os.path.join(dir_out,file_name_domain_a)
-    file_out_path_domain_aaaa=os.path.join(dir_out,file_name_domain_aaaa)
-
-    data.Num_query_a_fail=data.Num_query_a_all-data.Num_query_a_success
-    data.Num_query_aaaa_fail=data.Num_query_aaaa_all-data.Num_query_aaaa_success
 
     #不同记录类型输出
     Record_num_all_sorted=dict(sorted(data.Dic_record_num_all.items(),key=lambda x:x[1],reverse=True))
@@ -40,6 +34,15 @@ def output1():#处理结果并输出
     for key,val in Record_num_all_sorted.items():
         csv_out.writerow([key,val,str(format(val/data.Num_query_all*100,'.2f'))+'%',\
                 data.Dic_record_num_success[key],str(format(data.Dic_record_num_success[key]/val*100,'.2f'))+'%'])
+
+def output2():
+    dir_out='./result_data'
+    file_name_domain_a='2_domain_a.csv'#存放域名与a记录相关
+    file_name_domain_aaaa='2_domain_aaaa.csv'#存放域名与aaaa记录相关
+    file_out_path_domain_a=os.path.join(dir_out,file_name_domain_a)
+    file_out_path_domain_aaaa=os.path.join(dir_out,file_name_domain_aaaa)
+    data.Num_query_a_fail=data.Num_query_a_all-data.Num_query_a_success
+    data.Num_query_aaaa_fail=data.Num_query_aaaa_all-data.Num_query_aaaa_success
 
     #不同域名a记录按失败次数高低输出
     for key in data.Dic_domain_num_a_all:#a记录
@@ -106,7 +109,8 @@ def output1():#处理结果并输出
             csv_out.writerow([key,val,str(format(val/Num_query_aaaa_fail_frequent*100,'.2f'))+'%',\
                             data.Dic_domain_num_aaaa_all[key],data.Dic_domain_num_aaaa_success[key],\
                             str(format(val/data.Dic_domain_num_aaaa_all[key]*100,'.2f'))+'%'])
-def output2():
+
+def output3():#输出公共解析器查询的相关情况
     dir_out='./result_data'
     file_name_resolver_all='3_resolver_all.csv'
     file_name_resolver_a='3_resolver_a.csv'
@@ -171,9 +175,7 @@ def output2():
                     data.Dic_resolver_num_aaaa_success[key],\
                     str(format(data.Dic_resolver_num_aaaa_success[key]/val*100,'.2f'))+'%',\
                     asnum,asname,country])
-    #搞一个求公共DNS厂商的
-
-def public_resolver():#输出公共解析器查询的相关情况
+    
     #读public_resolver list
     fin=open('./other_data/public_resolver_ip.txt')
     fout=open('./result_data/3_resolver_public.csv','w',newline='')
@@ -220,3 +222,27 @@ def public_resolver():#输出公共解析器查询的相关情况
                         public_resolver_num_aaaa_all,public_resolver_num_aaaa_success,rate_aaaa_success])
     fin.close()
     fout.close()
+def output4():
+    Dic_nxdomain_num_sorted=dict(sorted(data.Dic_nxdomain_num.items(),key=lambda x:x[1],reverse=True))
+    # print(Dic_nxdomain_num_sorted)
+    fout=open('./result_data/4_nxdomain_rank.csv','w',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['nxdomain','num'])
+    for k,v in Dic_nxdomain_num_sorted.items():
+        csv_out.writerow([k,v])
+    
+    Dic_nxsld_num_sorted=dict(sorted(data.Dic_nxsld_num.items(),key=lambda x:x[1],reverse=True))
+    # print(Dic_nxsld_num_sorted)
+    fout=open('./result_data/4_nxsld_rank.csv','w',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['nxsld','num'])
+    for k,v in Dic_nxsld_num_sorted.items():
+        csv_out.writerow([k,v])
+    fout.close()
+
+def output():
+    output0()
+    output1()
+    output2()
+    output3()
+    output4()

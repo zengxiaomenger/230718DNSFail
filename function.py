@@ -3,46 +3,8 @@ import os
 import csv
 import json
 import data
-import awdb
+from easyfunc import ip2asnum,judge_success,fqdn2sld
 from tqdm import tqdm
-
-def judge_recursive(Rdic_rr,Rname,Qname):
-    if Rname==Qname:
-        return 1
-    else:
-        tp=0
-        for Ritem in Rdic_rr:
-            if Ritem['type']==5 and Ritem['cname']==Rname:
-                tp=judge_recursive(Rdic_rr,Ritem['name'],Qname)
-                if tp==1:
-                    break
-        return tp
-
-def judge_success(Rdic_rr,Qname,Qtype):
-    #复杂的判别方法是正着找，我们反着找！
-    success=0
-    # if Qtype!=1 and Qtype!=28:#不可能出现递归
-    #     for Ritem in Rdic_rr:#直接找
-    #         if Ritem['name']==Qname and Ritem['type']==Qtype:
-    #             success=1
-    # else: #是1或28
-    for Ritem in Rdic_rr:#对于所有的答案
-        if Ritem['type']==Qtype:
-            if judge_recursive(Rdic_rr,Ritem['name'],Qname)==1:
-                success=1
-                break
-        if success==1:
-            break
-    return success
-
-def ip2asnum(str_ip):
-    reader=awdb.open_database(r'./other_data/IP_basic_single_WGS84.awdb')
-    (record,prefix_len)=reader.get_with_prefix_len(str_ip)
-    ans=record.get('asnumber').decode('utf8')
-    if ans!='':
-        return ans
-    else:
-        return 'null'
 
 def dns_Rstatus(Rstatus):
     if Rstatus in data.Dic_state:
@@ -114,6 +76,19 @@ def dns_Fail(Qname,Qtype,Resolver,Rjson):
             data.Num_query_aaaa_success+=1
             data.Dic_domain_num_aaaa_success[Qname]+=1
             data.Dic_resolver_num_aaaa_success[Resolver]+=1
+
+def dns_NXDomain(Qname):
+    #统计NXDomain信息
+    if Qname in data.Dic_nxdomain_num:
+        data.Dic_nxdomain_num[Qname]+=1
+    else:
+        data.Dic_nxdomain_num[Qname]=1
+    sld=fqdn2sld(Qname)
+    if sld in data.Dic_nxsld_num:
+        data.Dic_nxsld_num[sld]+=1
+    else:
+        data.Dic_nxsld_num[sld]=1
+
 def dns_newgTLD(Qname):
     #判断new gTLD
     TLD=Qname.rsplit('.',1)[-1]
@@ -133,7 +108,7 @@ def process():
         i=0
         for line in csv_in:#对于每一行数据!!!!!
             i+=1
-            if i>100000:
+            if i>1000000:
                 break
             Manmade =   line[7]
             Resolver=   line[33]
@@ -142,7 +117,6 @@ def process():
             Qname   =   line[124]
             Qtype   =   int(line[125])#该响应的查询种类 （数字类型
             Rjson   =   line[129]
-
             if Manmade=='31':#无视所有自造流量 不管qr
                 data.Num_manmade+=1
                 continue
@@ -151,6 +125,8 @@ def process():
                 dns_Rstatus(Rstatus)
                 if Rstatus=='0':#统计论文中fail情况
                     dns_Fail(Qname,Qtype,Resolver,Rjson)
+                elif Rstatus=='3':#统计NXDomain情况
+                    dns_NXDomain(Qname)
                 #new gTLD情况
                 dns_newgTLD(Qname)
         break
