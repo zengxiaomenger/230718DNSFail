@@ -1,6 +1,7 @@
 #data.py
+# 以下是有关数据统计的
 
-
+# 以下是DNS Fail相关统计
 Num_query_all=0         #查询总数
 Num_query_success=0     #查询成功总数，不只有a aaaa
 Num_query_fail=0        #查询失败总数
