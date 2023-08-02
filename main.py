@@ -1,8 +1,8 @@
 #main.py
 import data
 from tqdm import tqdm
-from process import process
-from output import output,output2,public_resolver
+from function import process
+from output import output0,output1,output2,public_resolver
 
 def _init_():
     #读asnum2asname
@@ -21,10 +21,10 @@ def _init_():
         data.List_newgTLDs.append(tp[0].strip())
     fin.close()
 
-
 if __name__=='__main__':
     _init_()
     process()
-    output()
+    output0()
+    output1()
     output2()
     public_resolver()

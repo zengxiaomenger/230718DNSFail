@@ -43,16 +43,14 @@ def ip2asnum(str_ip):
         return ans
     else:
         return 'null'
-    
-def dnsfail(line):
-    Qname=line[124]
-    Qtype=int(line[125])#该响应的查询种类 （数字类型
-    #判断new gTLD
-    TLD=Qname.rsplit('.',1)[-1]
-    if TLD in data.List_newgTLDs:
-        data.Num_newgTLDs+=1
-    # else:
-    #     continue
+
+def dns_Rstatus(Rstatus):
+    if Rstatus in data.Dic_state:
+        data.Dic_state[Rstatus]+=1
+    else:
+        data.Dic_state[Rstatus]=0
+
+def dns_Fail(Qname,Qtype,Resolver,Rjson):
     #但凡有查询就记录下来
     data.Num_query_all+=1
     #对不同查询类型的记录
@@ -78,53 +76,56 @@ def dnsfail(line):
             data.Dic_domain_num_aaaa_all[Qname]=1
             data.Dic_domain_num_aaaa_success[Qname]=0
     #对不同解析器的记录
-    resolver=line[33]#用ip标识
-    if resolver in data.Dic_resolver_num_all:
-        data.Dic_resolver_num_all[resolver]+=1
+    if Resolver in data.Dic_resolver_num_all:
+        data.Dic_resolver_num_all[Resolver]+=1
     else:
-        data.Dic_resolver_num_all[resolver]=1
-        data.Dic_resolver_num_success[resolver]=0
+        data.Dic_resolver_num_all[Resolver]=1
+        data.Dic_resolver_num_success[Resolver]=0
         #ip2asnum
-        data.Dic_resolver_asnum[resolver]=ip2asnum(resolver)
+        data.Dic_resolver_asnum[Resolver]=ip2asnum(Resolver)
 
     if Qtype==1:
-        if resolver in data.Dic_resolver_num_a_all:
-            data.Dic_resolver_num_a_all[resolver]+=1
+        if Resolver in data.Dic_resolver_num_a_all:
+            data.Dic_resolver_num_a_all[Resolver]+=1
         else:
-            data.Dic_resolver_num_a_all[resolver]=1
-            data.Dic_resolver_num_a_success[resolver]=0
+            data.Dic_resolver_num_a_all[Resolver]=1
+            data.Dic_resolver_num_a_success[Resolver]=0
     elif Qtype==28:
-        if resolver in data.Dic_resolver_num_aaaa_all:
-            data.Dic_resolver_num_aaaa_all[resolver]+=1
+        if Resolver in data.Dic_resolver_num_aaaa_all:
+            data.Dic_resolver_num_aaaa_all[Resolver]+=1
         else:
-            data.Dic_resolver_num_aaaa_all[resolver]=1
-            data.Dic_resolver_num_aaaa_success[resolver]=0
+            data.Dic_resolver_num_aaaa_all[Resolver]=1
+            data.Dic_resolver_num_aaaa_success[Resolver]=0
     
     #下面再判断是否成功
-    Rdic=json.loads(line[129])
+    Rdic=json.loads(Rjson)
     success=judge_success(Rdic['rr'],Qname,Qtype)
     if success==1:
         data.Num_query_success+=1
         #记录类型
         data.Dic_record_num_success[Qtype]+=1
         #域名 解析器
-        data.Dic_resolver_num_success[resolver]+=1
+        data.Dic_resolver_num_success[Resolver]+=1
         if Qtype==1:
             data.Num_query_a_success+=1
             data.Dic_domain_num_a_success[Qname]+=1
-            data.Dic_resolver_num_a_success[resolver]+=1
+            data.Dic_resolver_num_a_success[Resolver]+=1
         elif Qtype==28:
             data.Num_query_aaaa_success+=1
             data.Dic_domain_num_aaaa_success[Qname]+=1
-            data.Dic_resolver_num_aaaa_success[resolver]+=1
-        
+            data.Dic_resolver_num_aaaa_success[Resolver]+=1
+def dns_newgTLD(Qname):
+    #判断new gTLD
+    TLD=Qname.rsplit('.',1)[-1]
+    if TLD in data.List_newgTLDs:
+        data.Num_newgTLDs+=1
+
 def process():
     dir_in='./source_data'
     file_names=os.listdir(dir_in)
     for file_name in tqdm(file_names):#对于每个源文件
         if file_name=='.DS_Store':
             continue
-        #输入文件的路径
         file_in_path=os.path.join(dir_in,file_name)
         #输入的文件对象
         file_in=open(file_in_path,'r',encoding='utf-8-sig')
@@ -132,24 +133,24 @@ def process():
         i=0
         for line in csv_in:#对于每一行数据!!!!!
             i+=1
-            if i>1000000:
+            if i>100000:
                 break
-            if line[7]=='31':#无视所有自造流量
+            Manmade =   line[7]
+            Resolver=   line[33]
+            QorR    =   line[113]#0是query 1是response
+            Rstatus =   line[119]#响应状态0 No Error 3 NXDomain
+            Qname   =   line[124]
+            Qtype   =   int(line[125])#该响应的查询种类 （数字类型
+            Rjson   =   line[129]
+
+            if Manmade=='31':#无视所有自造流量 不管qr
+                data.Num_manmade+=1
                 continue
-            QorR=int(line[113]) #0是query 1是response
-            if QorR==1:#是R 即响应
-                #统计响应状态情况
-                if line[119] in data.Dic_state:
-                    data.Dic_state[line[119]]+=1
-                else:
-                    data.Dic_state[line[119]]=0
-                if line[119]!='0':#nxdomain
-                    continue
-                #统计论文中fail情况
-                else:
-                    dnsfail(line)
+            if QorR=='1':#是R 即响应
+                #统计响应状态情况 
+                dns_Rstatus(Rstatus)
+                if Rstatus=='0':#统计论文中fail情况
+                    dns_Fail(Qname,Qtype,Resolver,Rjson)
+                #new gTLD情况
+                dns_newgTLD(Qname)
         break
-    print(data.Dic_state)
-    print(data.Num_newgTLDs)
-    data.Num_query_a_fail=data.Num_query_a_all-data.Num_query_a_success
-    data.Num_query_aaaa_fail=data.Num_query_aaaa_all-data.Num_query_aaaa_success

@@ -2,7 +2,25 @@
 import os
 import csv
 import data
-def output():#处理结果并输出
+def output0():#输出一些与数据集相关的东西
+    dir_out='./result_data'
+    file_name_dnsstatus='0_dns_status.csv'
+    file_out_path_dns_status=os.path.join(dir_out,file_name_dnsstatus)
+    file_out_dns_status=open(file_out_path_dns_status,'w')
+    
+    file_out_dns_status.write('Rcodes of DNS Responses:\n')
+    for key,val in data.Dic_state.items():
+        file_out_dns_status.write(str(key)+' '+str(val)+'\n')
+    
+    file_out_dns_status.write('Number of manmade:\n')
+    file_out_dns_status.write(str(data.Num_manmade)+'\n')
+
+    file_out_dns_status.write('Number of new gTLDs:\n')
+    file_out_dns_status.write(str(data.Num_newgTLDs)+'\n')
+    
+    file_out_dns_status.close()
+
+def output1():#处理结果并输出
     dir_out='./result_data'
     file_name_type='1_type.csv'#存放不同类型查询数量、成功数量、失败数量、成功率
     file_name_domain_a='2_domain_a.csv'#存放域名与a记录相关
@@ -10,6 +28,9 @@ def output():#处理结果并输出
     file_out_path_type=os.path.join(dir_out,file_name_type)
     file_out_path_domain_a=os.path.join(dir_out,file_name_domain_a)
     file_out_path_domain_aaaa=os.path.join(dir_out,file_name_domain_aaaa)
+
+    data.Num_query_a_fail=data.Num_query_a_all-data.Num_query_a_success
+    data.Num_query_aaaa_fail=data.Num_query_aaaa_all-data.Num_query_aaaa_success
 
     #不同记录类型输出
     Record_num_all_sorted=dict(sorted(data.Dic_record_num_all.items(),key=lambda x:x[1],reverse=True))
