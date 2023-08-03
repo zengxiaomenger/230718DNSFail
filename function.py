@@ -77,6 +77,37 @@ def dns_Fail(Qname,Qtype,Resolver,Rjson):
             data.Dic_domain_num_aaaa_success[Qname]+=1
             data.Dic_resolver_num_aaaa_success[Resolver]+=1
 
+def dns_ClientQuery(Client,Rstatus,Qtype,Qname):
+    #client查询数量
+    if Client in data.Dic_client_query_num:
+        data.Dic_client_query_num[Client]+=1
+    else:
+        data.Dic_client_query_num[Client]=1
+    #client查询返回状态
+    if Client not in data.Dic_client_Rstatus_dic:
+        data.Dic_client_Rstatus_dic[Client]={}
+    if Rstatus in data.Dic_client_Rstatus_dic[Client]:
+        data.Dic_client_Rstatus_dic[Client][Rstatus]+=1
+    else:
+        data.Dic_client_Rstatus_dic[Client][Rstatus]=1
+        
+    #client查询类型
+    if Client not in data.Dic_client_Qtype_dic:
+        data.Dic_client_Qtype_dic[Client]={}
+    if Qtype in data.Dic_client_Qtype_dic[Client]:
+        data.Dic_client_Qtype_dic[Client][Qtype]+=1
+    else:
+        data.Dic_client_Qtype_dic[Client][Qtype]=1
+        
+    #client查询域名
+    if Client not in data.Dic_client_domain_dic:
+        data.Dic_client_domain_dic[Client]={}
+    if Qname in data.Dic_client_domain_dic[Client]:
+        data.Dic_client_domain_dic[Client][Qname]+=1
+    else:
+        data.Dic_client_domain_dic[Client][Qname]=1
+        
+
 def dns_NXDomain(Qname):
     #统计NXDomain信息
     if Qname in data.Dic_nxdomain_num:
@@ -108,9 +139,10 @@ def process():
         i=0
         for line in csv_in:#对于每一行数据!!!!!
             i+=1
-            if i>1000000:
+            if i>100000:
                 break
             Manmade =   line[7]
+            Client  =   line[24]
             Resolver=   line[33]
             QorR    =   line[113]#0是query 1是response
             Rstatus =   line[119]#响应状态0 No Error 3 NXDomain
@@ -120,13 +152,17 @@ def process():
             if Manmade=='31':#无视所有自造流量 不管qr
                 data.Num_manmade+=1
                 continue
-            if QorR=='1':#是R 即响应
-                #统计响应状态情况 
+            if QorR=='0':#是查询
+                pass
+            elif QorR=='1':#是R 即响应
+                #统计响应状态情况
                 dns_Rstatus(Rstatus)
+                #new gTLD情况
+                dns_newgTLD(Qname)
+                #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
+                dns_ClientQuery(Client,Rstatus,Qtype,Qname)
                 if Rstatus=='0':#统计论文中fail情况
                     dns_Fail(Qname,Qtype,Resolver,Rjson)
                 elif Rstatus=='3':#统计NXDomain情况
                     dns_NXDomain(Qname)
-                #new gTLD情况
-                dns_newgTLD(Qname)
         break

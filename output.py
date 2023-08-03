@@ -240,9 +240,43 @@ def output4():
         csv_out.writerow([k,v])
     fout.close()
 
+def output5():
+    dir_out='./result_data'
+    file_name_client_query_num='5_client_query_num.csv'
+    file_name_client_Rstatus_dic='5_client_Rstatus_dic.csv'
+    file_name_client_Qtype_dic='5_client_Qtype_dic.csv'
+    file_name_client_domain_dic='5_client_domain_dic.csv'
+
+    file_out_path_client_query_num=os.path.join (dir_out,   file_name_client_query_num)
+    file_out_path_client_Rstatus_dic=os.path.join(dir_out,  file_name_client_Rstatus_dic)
+    file_out_path_client_Qtype_dic=os.path.join (dir_out,   file_name_client_Qtype_dic)
+    file_out_path_client_domain_dic=os.path.join(dir_out,   file_name_client_domain_dic)
+
+    file_out=open(file_out_path_client_query_num,'w',newline='')
+    csv_out=csv.writer(file_out)
+    Dic_client_query_num_sorted=dict(sorted(data.Dic_client_query_num.items(),key=lambda x:x[1],reverse=True))
+    for key,val in Dic_client_query_num_sorted.items():
+        csv_out.writerow([key,val])
+
+    file_out=open(file_out_path_client_Rstatus_dic,'w',newline='')
+    csv_out=csv.writer(file_out)
+    for key,val in Dic_client_query_num_sorted.items():
+        csv_out.writerow([key,data.Dic_client_Rstatus_dic[key]])
+
+    file_out=open(file_out_path_client_Qtype_dic,'w',newline='')
+    csv_out=csv.writer(file_out)
+    for key,val in Dic_client_query_num_sorted.items():
+        csv_out.writerow([key,data.Dic_client_Qtype_dic[key]])
+
+    file_out=open(file_out_path_client_domain_dic,'w',newline='')
+    csv_out=csv.writer(file_out)
+    for key,val in Dic_client_query_num_sorted.items():
+        csv_out.writerow([key,data.Dic_client_domain_dic[key]])
+
 def output():
     output0()
     output1()
     output2()
     output3()
     output4()
+    output5()

@@ -51,3 +51,10 @@ Dic_resolver_public_num_aaaa_success={}
 #NXDomain
 Dic_nxdomain_num={}
 Dic_nxsld_num={}
+
+#不同用户发起查询数量
+Dic_client_query_num={}
+#不同用户发起查询造成的状态
+Dic_client_Rstatus_dic={}
+Dic_client_Qtype_dic={}
+Dic_client_domain_dic={}
