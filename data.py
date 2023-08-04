@@ -4,6 +4,8 @@ List_country=[]
 List_newgTLDs=[]
 Num_newgTLDs=0
 Num_manmade=0
+Num_query=0
+Num_response=0
 
 # 以下是DNS Fail相关统计
 Num_query_all=0         #响应总数

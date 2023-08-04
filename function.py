@@ -5,7 +5,11 @@ import json
 import data
 from easyfunc import ip2asnum,judge_success,fqdn2sld
 from tqdm import tqdm
-
+def dns_QorR(QorR):
+    if QorR=='0':
+        data.Num_query+=1
+    else:
+        data.Num_response+=1
 def dns_Rstatus(Rstatus):
     if Rstatus in data.Dic_state:
         data.Dic_state[Rstatus]+=1
@@ -139,7 +143,7 @@ def process():
         i=0
         for line in csv_in:#对于每一行数据!!!!!
             i+=1
-            if i>100000:
+            if i>1000000:
                 break
             Manmade =   line[7]
             Client  =   line[24]
@@ -152,17 +156,16 @@ def process():
             if Manmade=='31':#无视所有自造流量 不管qr
                 data.Num_manmade+=1
                 continue
+            dns_QorR(QorR)  #统计查询/响应的数量
             if QorR=='0':#是查询
                 pass
             elif QorR=='1':#是R 即响应
-                #统计响应状态情况
-                dns_Rstatus(Rstatus)
-                #new gTLD情况
-                dns_newgTLD(Qname)
+                dns_Rstatus(Rstatus)    #统计响应状态情况
+                dns_newgTLD(Qname)      #new gTLD情况
                 #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
                 dns_ClientQuery(Client,Rstatus,Qtype,Qname)
                 if Rstatus=='0':#统计论文中fail情况
                     dns_Fail(Qname,Qtype,Resolver,Rjson)
                 elif Rstatus=='3':#统计NXDomain情况
                     dns_NXDomain(Qname)
-        break
+        # break

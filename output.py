@@ -7,8 +7,12 @@ def output0():#输出一些与数据集相关的东西
     dir_out='./result_data'
     file_name_dnsstatus='0_dns_status.csv'
     file_out_path_dns_status=os.path.join(dir_out,file_name_dnsstatus)
-    file_out_dns_status=open(file_out_path_dns_status,'w')
+    file_out_dns_status=open(file_out_path_dns_status,'w',encoding='utf-8',newline='')
     
+    file_out_dns_status.write('Number of QorR:\n')
+    for key,val in data.Dic_state.items():
+        file_out_dns_status.write(str(data.Num_query)+' '+str(data.Num_response)+'\n')
+
     file_out_dns_status.write('Rcodes of DNS Responses:\n')
     for key,val in data.Dic_state.items():
         file_out_dns_status.write(str(key)+' '+str(val)+'\n')
@@ -225,7 +229,7 @@ def output3():#输出公共解析器查询的相关情况
 def output4():
     Dic_nxdomain_num_sorted=dict(sorted(data.Dic_nxdomain_num.items(),key=lambda x:x[1],reverse=True))
     # print(Dic_nxdomain_num_sorted)
-    fout=open('./result_data/4_nxdomain_rank.csv','w',newline='')
+    fout=open('./result_data/4_nxdomain_rank.csv','w',encoding='utf-8',newline='')
     csv_out=csv.writer(fout)
     csv_out.writerow(['nxdomain','num'])
     for k,v in Dic_nxdomain_num_sorted.items():
@@ -233,7 +237,7 @@ def output4():
     
     Dic_nxsld_num_sorted=dict(sorted(data.Dic_nxsld_num.items(),key=lambda x:x[1],reverse=True))
     # print(Dic_nxsld_num_sorted)
-    fout=open('./result_data/4_nxsld_rank.csv','w',newline='')
+    fout=open('./result_data/4_nxsld_rank.csv','w',encoding='utf-8',newline='')
     csv_out=csv.writer(fout)
     csv_out.writerow(['nxsld','num'])
     for k,v in Dic_nxsld_num_sorted.items():
@@ -252,23 +256,23 @@ def output5():
     file_out_path_client_Qtype_dic=os.path.join (dir_out,   file_name_client_Qtype_dic)
     file_out_path_client_domain_dic=os.path.join(dir_out,   file_name_client_domain_dic)
 
-    file_out=open(file_out_path_client_query_num,'w',newline='')
+    file_out=open(file_out_path_client_query_num,'w',encoding='utf-8',newline='')
     csv_out=csv.writer(file_out)
     Dic_client_query_num_sorted=dict(sorted(data.Dic_client_query_num.items(),key=lambda x:x[1],reverse=True))
     for key,val in Dic_client_query_num_sorted.items():
         csv_out.writerow([key,val])
 
-    file_out=open(file_out_path_client_Rstatus_dic,'w',newline='')
+    file_out=open(file_out_path_client_Rstatus_dic,'w',encoding='utf-8',newline='')
     csv_out=csv.writer(file_out)
     for key,val in Dic_client_query_num_sorted.items():
         csv_out.writerow([key,data.Dic_client_Rstatus_dic[key]])
 
-    file_out=open(file_out_path_client_Qtype_dic,'w',newline='')
+    file_out=open(file_out_path_client_Qtype_dic,'w',encoding='utf-8',newline='')
     csv_out=csv.writer(file_out)
     for key,val in Dic_client_query_num_sorted.items():
         csv_out.writerow([key,data.Dic_client_Qtype_dic[key]])
 
-    file_out=open(file_out_path_client_domain_dic,'w',newline='')
+    file_out=open(file_out_path_client_domain_dic,'w',encoding='utf-8',newline='')
     csv_out=csv.writer(file_out)
     for key,val in Dic_client_query_num_sorted.items():
         csv_out.writerow([key,data.Dic_client_domain_dic[key]])
