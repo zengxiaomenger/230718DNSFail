@@ -6,6 +6,7 @@ Num_newgTLDs=0
 Num_manmade=0
 Num_query=0
 Num_response=0
+Dic_dir={}#流方向相关
 
 # 以下是DNS Fail相关统计
 Num_query_all=0         #响应总数

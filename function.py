@@ -5,11 +5,19 @@ import json
 import data
 from easyfunc import ip2asnum,judge_success,fqdn2sld
 from tqdm import tqdm
+def dns_DIR(EorI,SorD):
+    key=EorI+'_'+SorD
+    if key in data.Dic_dir:
+        data.Dic_dir[key]+=1
+    else:
+        data.Dic_dir[key]=1
+
 def dns_QorR(QorR):
     if QorR=='0':
         data.Num_query+=1
     else:
         data.Num_response+=1
+
 def dns_Rstatus(Rstatus):
     if Rstatus in data.Dic_state:
         data.Dic_state[Rstatus]+=1
@@ -143,8 +151,10 @@ def process():
         i=0
         for line in csv_in:#对于每一行数据!!!!!
             i+=1
-            if i>1000000:
+            if i>100000:
                 break
+            EorI    =   line[3]#69是向外，73是向内
+            SorD    =   line[4]#12是单向流，3是双向流
             Manmade =   line[7]
             Client  =   line[24]
             Resolver=   line[33]
@@ -156,6 +166,7 @@ def process():
             if Manmade=='31':#无视所有自造流量 不管qr
                 data.Num_manmade+=1
                 continue
+            dns_DIR(EorI,SorD)#统计流向以及是否有回应
             dns_QorR(QorR)  #统计查询/响应的数量
             if QorR=='0':#是查询
                 pass

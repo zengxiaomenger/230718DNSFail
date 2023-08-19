@@ -1,12 +1,18 @@
-Rcodes of DNS Responses:
-0 16306742
-2 242605
-3 1696973
-5 4518
-4 3499
-1 131
-10 4
+Number of dir:
+73_3 1837546
+69_1 1325991
+69_3 312970
+73_2 7989
+Number of QorR:
+1638948 1845548
+Rcode of DNS Responses:
+0 1651819
+3 169552
+2 23363
+4 414
+5 382
+1 12
 Number of manmade:
-149856
+15504
 Number of new gTLDs:
-553695
+54387

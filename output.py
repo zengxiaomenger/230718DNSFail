@@ -9,11 +9,14 @@ def output0():#输出一些与数据集相关的东西
     file_out_path_dns_status=os.path.join(dir_out,file_name_dnsstatus)
     file_out_dns_status=open(file_out_path_dns_status,'w',encoding='utf-8',newline='')
     
-    file_out_dns_status.write('Number of QorR:\n')
-    for key,val in data.Dic_state.items():
-        file_out_dns_status.write(str(data.Num_query)+' '+str(data.Num_response)+'\n')
+    file_out_dns_status.write('Number of dir:\n')
+    for k,v in data.Dic_dir.items():
+        file_out_dns_status.write(str(k)+' '+str(v)+'\n')
 
-    file_out_dns_status.write('Rcodes of DNS Responses:\n')
+    file_out_dns_status.write('Number of QorR:\n')
+    file_out_dns_status.write(str(data.Num_query)+' '+str(data.Num_response)+'\n')
+
+    file_out_dns_status.write('Rcode of DNS Responses:\n')
     for key,val in data.Dic_state.items():
         file_out_dns_status.write(str(key)+' '+str(val)+'\n')
     
