@@ -5,6 +5,11 @@ import json
 import data
 from easyfunc import ip2asnum,judge_success,fqdn2sld
 from tqdm import tqdm
+def dns_DialogID(now):#DNS会话数量
+    if data.Num_dialog_preid!=now:
+        data.Num_dialog+=1
+    data.Num_dialog_preid=now
+
 def dns_DIR(EorI,SorD):
     key=EorI+'_'+SorD
     if key in data.Dic_dir:
@@ -126,11 +131,31 @@ def dns_NXDomain(Qname):
         data.Dic_nxdomain_num[Qname]+=1
     else:
         data.Dic_nxdomain_num[Qname]=1
+
+    #统计NXsld
     sld=fqdn2sld(Qname)
     if sld in data.Dic_nxsld_num:
         data.Dic_nxsld_num[sld]+=1
     else:
         data.Dic_nxsld_num[sld]=1
+
+    #public_suffix
+    #判断后缀长度增加，有没有在public_suffix里面出现过的
+    pubsuf=Qname
+    while True:
+        # print(pubsuf)
+        if pubsuf in data.List_pubsuf:#这个后缀在公共后缀里
+            if pubsuf in data.Dic_nxpubsuf_num:
+                data.Dic_nxpubsuf_num[pubsuf]+=1
+            else:
+                data.Dic_nxpubsuf_num[pubsuf]=1
+            break
+        else:#当前后缀不在公共后缀里
+            if len(pubsuf.split('.'))==1:#当前后缀长度为1
+                data.Num_tp+=1
+                data.List_tp.append(pubsuf)
+                break
+            pubsuf=pubsuf.split('.',1)[1]
 
 def dns_newgTLD(Qname):
     #判断new gTLD
@@ -144,6 +169,8 @@ def process():
     for file_name in tqdm(file_names):#对于每个源文件
         if file_name=='.DS_Store':
             continue
+        if file_name!='DNSdata_13.csv':
+            continue
         file_in_path=os.path.join(dir_in,file_name)
         #输入的文件对象
         file_in=open(file_in_path,'r',encoding='utf-8-sig')
@@ -155,9 +182,10 @@ def process():
                 break
             EorI    =   line[3]#69是向外，73是向内
             SorD    =   line[4]#12是单向流，3是双向流
-            Manmade =   line[7]
-            Client  =   line[24]
-            Resolver=   line[33]
+            Manmade =   line[7]#人造流量
+            Client  =   line[24]#用户ip
+            Resolver=   line[33]#解析器ip
+            DiaID   =   line[112]#dns事务ID 判断有多少个会话
             QorR    =   line[113]#0是query 1是response
             Rstatus =   line[119]#响应状态0 No Error 3 NXDomain
             Qname   =   line[124]
@@ -166,6 +194,7 @@ def process():
             if Manmade=='31':#无视所有自造流量 不管qr
                 data.Num_manmade+=1
                 continue
+            dns_DialogID(DiaID)#判断dns会话id
             dns_DIR(EorI,SorD)#统计流向以及是否有回应
             dns_QorR(QorR)  #统计查询/响应的数量
             if QorR=='0':#是查询

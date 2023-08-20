@@ -9,6 +9,9 @@ def output0():#输出一些与数据集相关的东西
     file_out_path_dns_status=os.path.join(dir_out,file_name_dnsstatus)
     file_out_dns_status=open(file_out_path_dns_status,'w',encoding='utf-8',newline='')
     
+    file_out_dns_status.write('Number of dialog:\n')
+    file_out_dns_status.write(str(data.Num_dialog)+'\n')
+
     file_out_dns_status.write('Number of dir:\n')
     for k,v in data.Dic_dir.items():
         file_out_dns_status.write(str(k)+' '+str(v)+'\n')
@@ -244,6 +247,15 @@ def output4():
     csv_out=csv.writer(fout)
     csv_out.writerow(['nxsld','num'])
     for k,v in Dic_nxsld_num_sorted.items():
+        csv_out.writerow([k,v])
+    fout.close()
+    
+    Dic_nxpubsuf_num_sorted=dict(sorted(data.Dic_nxpubsuf_num.items(),key=lambda x:x[1],reverse=True))
+    # print(Dic_nxsld_num_sorted)
+    fout=open('./result_data/4_nxpubsuf_rank.csv','w',encoding='utf-8',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['nxpubsuf','num'])
+    for k,v in Dic_nxpubsuf_num_sorted.items():
         csv_out.writerow([k,v])
     fout.close()
 

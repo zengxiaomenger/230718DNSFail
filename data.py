@@ -2,11 +2,14 @@
 # 以下是有关数据统计的
 List_country=[]
 List_newgTLDs=[]
+List_pubsuf=[]#公共后缀
+Num_dialog=0
+Num_dialog_preid='-1'#之前的会话id判断是否相同
+Dic_dir={}#不同流方向的数量
 Num_newgTLDs=0
 Num_manmade=0
 Num_query=0
 Num_response=0
-Dic_dir={}#流方向相关
 
 # 以下是DNS Fail相关统计
 Num_query_all=0         #响应总数
@@ -54,6 +57,7 @@ Dic_resolver_public_num_aaaa_success={}
 #NXDomain
 Dic_nxdomain_num={}
 Dic_nxsld_num={}
+Dic_nxpubsuf_num={}
 
 #不同用户发起查询数量
 Dic_client_query_num={}
@@ -61,3 +65,6 @@ Dic_client_query_num={}
 Dic_client_Rstatus_dic={}
 Dic_client_Qtype_dic={}
 Dic_client_domain_dic={}
+
+Num_tp=0
+List_tp=[]
