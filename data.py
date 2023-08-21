@@ -27,6 +27,9 @@ Dic_state={}
 Dic_record_num_all={}       #该种类的记录对应的查询数
 Dic_record_num_success={}   #该种类的记录对应的查询成功数
 
+#这个分析的不只是Rcode 0且非空了，是所有的里面
+Dic_type_dic={}             #种类对应的数量、占总量比例、各个rcode数量（输出时变为比例），qdots，tld、sld、fqdn
+
 Dic_domain_num_a_all={}     #该域名a查询总数
 Dic_domain_num_a_success={} #该域名a查询成功数
 Dic_domain_num_a_fail={}    #该域名a查询失败数
