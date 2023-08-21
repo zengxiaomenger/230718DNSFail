@@ -3,7 +3,7 @@ import os
 import csv
 import json
 import data
-from easyfunc import ip2asnum,judge_success,fqdn2sld
+from easyfunc import ip2asnum,judge_success,fqdn2sld,domain2pubsuf
 from tqdm import tqdm
 def dns_DialogID(now):#DNS会话数量
     if data.Num_dialog_preid!=now:
@@ -115,7 +115,7 @@ def dns_ClientQuery(Client,Rstatus,Qtype,Qname):
         data.Dic_client_Qtype_dic[Client][Qtype]+=1
     else:
         data.Dic_client_Qtype_dic[Client][Qtype]=1
-        
+
     #client查询域名
     if Client not in data.Dic_client_domain_dic:
         data.Dic_client_domain_dic[Client]={}
@@ -141,21 +141,12 @@ def dns_NXDomain(Qname):
 
     #public_suffix
     #判断后缀长度增加，有没有在public_suffix里面出现过的
-    pubsuf=Qname
-    while True:
-        # print(pubsuf)
-        if pubsuf in data.List_pubsuf:#这个后缀在公共后缀里
-            if pubsuf in data.Dic_nxpubsuf_num:
-                data.Dic_nxpubsuf_num[pubsuf]+=1
-            else:
-                data.Dic_nxpubsuf_num[pubsuf]=1
-            break
-        else:#当前后缀不在公共后缀里
-            if len(pubsuf.split('.'))==1:#当前后缀长度为1
-                data.Num_tp+=1
-                data.List_tp.append(pubsuf)
-                break
-            pubsuf=pubsuf.split('.',1)[1]
+    pubsuf=domain2pubsuf(Qname)
+    if pubsuf!='null':
+        if pubsuf in data.Dic_nxpubsuf_num:
+            data.Dic_nxpubsuf_num[pubsuf]+=1
+        else:
+            data.Dic_nxpubsuf_num[pubsuf]=1
 
 def dns_newgTLD(Qname):
     #判断new gTLD
@@ -178,7 +169,7 @@ def process():
         i=0
         for line in csv_in:#对于每一行数据!!!!!
             i+=1
-            if i>100000:
+            if i>1000000:
                 break
             EorI    =   line[3]#69是向外，73是向内
             SorD    =   line[4]#12是单向流，3是双向流
@@ -196,6 +187,9 @@ def process():
                 continue
             dns_DialogID(DiaID)#判断dns会话id
             dns_DIR(EorI,SorD)#统计流向以及是否有回应
+            #再加一个判断所有域名中的public suffix与非public suffix
+            #####想想怎么弄
+            ##不然就先完善功能，这个再想想
             dns_QorR(QorR)  #统计查询/响应的数量
             if QorR=='0':#是查询
                 pass

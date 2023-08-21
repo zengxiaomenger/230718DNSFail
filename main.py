@@ -46,6 +46,4 @@ def _init_():
 if __name__=='__main__':
     _init_()
     process()
-    print(data.Num_tp)
-    print(data.List_tp)
-    # output()
+    output()

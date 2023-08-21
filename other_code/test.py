@@ -11,6 +11,6 @@
 # for line in lis:
 #     fout.write(line)
 # fout.close()
-import idna
-print(idna.encode('政府.com').decode())
-print('//')
+import pandas as pd
+df=pd.DataFrame()
+print(df)

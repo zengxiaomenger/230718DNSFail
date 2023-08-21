@@ -1,6 +1,20 @@
 import awdb
 import data
 
+
+def domain2pubsuf(Qname):
+    #如果是pubsuf，返回pubsuf，否则返回null
+    pubsuf=Qname
+    while True:
+        if pubsuf in data.List_pubsuf:#这个后缀在公共后缀里
+            break
+        else:#当前后缀不在公共后缀里
+            if len(pubsuf.split('.'))==1:#当前后缀长度为1
+                pubsuf='null'
+                break
+            pubsuf=pubsuf.split('.',1)[1]
+    return pubsuf
+
 def judge_recursive(Rdic_rr,Rname,Qname):
     if Rname==Qname:
         return 1
