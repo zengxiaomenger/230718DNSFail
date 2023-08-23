@@ -11,6 +11,5 @@
 # for line in lis:
 #     fout.write(line)
 # fout.close()
-import pandas as pd
-df=pd.DataFrame()
-print(df)
+d={'a':1,'b':2}
+print(d.items())

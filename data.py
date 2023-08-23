@@ -1,15 +1,22 @@
 #data.py
 # 以下是有关数据统计的
-List_country=[]
-List_newgTLDs=[]
-List_pubsuf=[]#公共后缀
+#0
+#dialog dir
 Num_dialog=0
 Num_dialog_preid='-1'#之前的会话id判断是否相同
 Dic_dir={}#不同流方向的数量
-Num_newgTLDs=0
-Num_manmade=0
+#qr
 Num_query=0
 Num_response=0
+#rcode manmade newgTLD
+Dic_state={}
+Num_manmade=0
+Num_newgTLDs=0
+List_newgTLDs=[]
+
+List_country=[]
+List_pubsuf=[]#公共后缀
+
 
 # 以下是DNS Fail相关统计
 Num_query_all=0         #响应总数
@@ -23,13 +30,13 @@ Num_query_aaaa_all=0    #查询aaaa总数
 Num_query_aaaa_success=0#查询aaaa成功数
 Num_query_aaaa_fail=0   #查询aaaa失败数
 
-Dic_state={}
 Dic_record_num_all={}       #该种类的记录对应的查询数
 Dic_record_num_success={}   #该种类的记录对应的查询成功数
+#这个分析的不只是Rcode 0且非空了，是所有的响应！
+#key为1 A 28 AAAA val为字典，字典key为对应数量、各个rcode数量（no error data/no error nodata/success/nxdomain/other error）、不同fqdn数量、sld数量、tld数量、pubsuf数量
+Dic_type_dic={}             #所有响应中种类 对应的数量、占总量比例、各个rcode数量（输出时变为比例），qdots，fqdn、sld、tld、is pubsuf
 
-#这个分析的不只是Rcode 0且非空了，是所有的里面
-Dic_type_dic={}             #种类对应的数量、占总量比例、各个rcode数量（输出时变为比例），qdots，tld、sld、fqdn
-
+####注意分nxdomain啥的 重新考虑
 Dic_domain_num_a_all={}     #该域名a查询总数
 Dic_domain_num_a_success={} #该域名a查询成功数
 Dic_domain_num_a_fail={}    #该域名a查询失败数
@@ -46,9 +53,10 @@ Dic_resolver_num_a_fail={}  #该解析器查询a记录失败数
 Dic_resolver_num_aaaa_all={}#该解析器查询aaaa记录总数
 Dic_resolver_num_aaaa_success={}#该解析器查询aaaa记录成功数
 Dic_resolver_num_aaaa_fail={}#该解析器查询aaaa记录的失败数
-
 Dic_resolver_asnum={}       #该解析器对应的as号
 Dic_asnum_asname={}         #该as号对应的as名
+
+Dic_resolver_dic={}         #记录不同解析器返回的
 
 Dic_resolver_public_num_all={}#某公共解析器查询总数
 Dic_resolver_public_num_success={}
@@ -68,6 +76,3 @@ Dic_client_query_num={}
 Dic_client_Rstatus_dic={}
 Dic_client_Qtype_dic={}
 Dic_client_domain_dic={}
-
-Num_tp=0
-List_tp=[]

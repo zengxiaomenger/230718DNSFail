@@ -1,158 +1,8 @@
 #process.py
 import os
 import csv
-import json
-import data
-from easyfunc import ip2asnum,judge_success,fqdn2sld,domain2pubsuf
+from dns_fun import *
 from tqdm import tqdm
-def dns_DialogID(now):#DNS会话数量
-    if data.Num_dialog_preid!=now:
-        data.Num_dialog+=1
-    data.Num_dialog_preid=now
-
-def dns_DIR(EorI,SorD):
-    key=EorI+'_'+SorD
-    if key in data.Dic_dir:
-        data.Dic_dir[key]+=1
-    else:
-        data.Dic_dir[key]=1
-
-def dns_QorR(QorR):
-    if QorR=='0':
-        data.Num_query+=1
-    else:
-        data.Num_response+=1
-
-def dns_Rstatus(Rstatus):
-    if Rstatus in data.Dic_state:
-        data.Dic_state[Rstatus]+=1
-    else:
-        data.Dic_state[Rstatus]=0
-
-def dns_Fail(Qname,Qtype,Resolver,Rjson):
-    #但凡有查询就记录下来
-    data.Num_query_all+=1
-    #对不同查询类型的记录
-    if Qtype in data.Dic_record_num_all:
-        data.Dic_record_num_all[Qtype]+=1
-    else:
-        data.Dic_record_num_all[Qtype]=1
-        #这里注意！！！success同时统计
-        data.Dic_record_num_success[Qtype]=0
-    #对不同查询域名的记录
-    if Qtype==1:
-        data.Num_query_a_all+=1
-        if Qname in data.Dic_domain_num_a_all:
-            data.Dic_domain_num_a_all[Qname]+=1
-        else:
-            data.Dic_domain_num_a_all[Qname]=1
-            data.Dic_domain_num_a_success[Qname]=0
-    elif Qtype==28:
-        data.Num_query_aaaa_all+=1
-        if Qname in data.Dic_domain_num_aaaa_all:
-            data.Dic_domain_num_aaaa_all[Qname]+=1
-        else:
-            data.Dic_domain_num_aaaa_all[Qname]=1
-            data.Dic_domain_num_aaaa_success[Qname]=0
-    #对不同解析器的记录
-    if Resolver in data.Dic_resolver_num_all:
-        data.Dic_resolver_num_all[Resolver]+=1
-    else:
-        data.Dic_resolver_num_all[Resolver]=1
-        data.Dic_resolver_num_success[Resolver]=0
-        #ip2asnum
-        data.Dic_resolver_asnum[Resolver]=ip2asnum(Resolver)
-
-    if Qtype==1:
-        if Resolver in data.Dic_resolver_num_a_all:
-            data.Dic_resolver_num_a_all[Resolver]+=1
-        else:
-            data.Dic_resolver_num_a_all[Resolver]=1
-            data.Dic_resolver_num_a_success[Resolver]=0
-    elif Qtype==28:
-        if Resolver in data.Dic_resolver_num_aaaa_all:
-            data.Dic_resolver_num_aaaa_all[Resolver]+=1
-        else:
-            data.Dic_resolver_num_aaaa_all[Resolver]=1
-            data.Dic_resolver_num_aaaa_success[Resolver]=0
-    
-    #下面再判断是否成功
-    Rdic=json.loads(Rjson)
-    success=judge_success(Rdic['rr'],Qname,Qtype)
-    if success==1:
-        data.Num_query_success+=1
-        #记录类型
-        data.Dic_record_num_success[Qtype]+=1
-        #域名 解析器
-        data.Dic_resolver_num_success[Resolver]+=1
-        if Qtype==1:
-            data.Num_query_a_success+=1
-            data.Dic_domain_num_a_success[Qname]+=1
-            data.Dic_resolver_num_a_success[Resolver]+=1
-        elif Qtype==28:
-            data.Num_query_aaaa_success+=1
-            data.Dic_domain_num_aaaa_success[Qname]+=1
-            data.Dic_resolver_num_aaaa_success[Resolver]+=1
-
-def dns_ClientQuery(Client,Rstatus,Qtype,Qname):
-    #client查询数量
-    if Client in data.Dic_client_query_num:
-        data.Dic_client_query_num[Client]+=1
-    else:
-        data.Dic_client_query_num[Client]=1
-    #client查询返回状态
-    if Client not in data.Dic_client_Rstatus_dic:
-        data.Dic_client_Rstatus_dic[Client]={}
-    if Rstatus in data.Dic_client_Rstatus_dic[Client]:
-        data.Dic_client_Rstatus_dic[Client][Rstatus]+=1
-    else:
-        data.Dic_client_Rstatus_dic[Client][Rstatus]=1
-        
-    #client查询类型
-    if Client not in data.Dic_client_Qtype_dic:
-        data.Dic_client_Qtype_dic[Client]={}
-    if Qtype in data.Dic_client_Qtype_dic[Client]:
-        data.Dic_client_Qtype_dic[Client][Qtype]+=1
-    else:
-        data.Dic_client_Qtype_dic[Client][Qtype]=1
-
-    #client查询域名
-    if Client not in data.Dic_client_domain_dic:
-        data.Dic_client_domain_dic[Client]={}
-    if Qname in data.Dic_client_domain_dic[Client]:
-        data.Dic_client_domain_dic[Client][Qname]+=1
-    else:
-        data.Dic_client_domain_dic[Client][Qname]=1
-        
-
-def dns_NXDomain(Qname):
-    #统计NXDomain信息
-    if Qname in data.Dic_nxdomain_num:
-        data.Dic_nxdomain_num[Qname]+=1
-    else:
-        data.Dic_nxdomain_num[Qname]=1
-
-    #统计NXsld
-    sld=fqdn2sld(Qname)
-    if sld in data.Dic_nxsld_num:
-        data.Dic_nxsld_num[sld]+=1
-    else:
-        data.Dic_nxsld_num[sld]=1
-
-    #public_suffix
-    #判断后缀长度增加，有没有在public_suffix里面出现过的
-    pubsuf=domain2pubsuf(Qname)
-    if pubsuf!='null':
-        if pubsuf in data.Dic_nxpubsuf_num:
-            data.Dic_nxpubsuf_num[pubsuf]+=1
-        else:
-            data.Dic_nxpubsuf_num[pubsuf]=1
-
-def dns_newgTLD(Qname):
-    #判断new gTLD
-    TLD=Qname.rsplit('.',1)[-1]
-    if TLD in data.List_newgTLDs:
-        data.Num_newgTLDs+=1
 
 def process():
     dir_in='./source_data'
@@ -160,8 +10,8 @@ def process():
     for file_name in tqdm(file_names):#对于每个源文件
         if file_name=='.DS_Store':
             continue
-        if file_name!='DNSdata_13.csv':
-            continue
+        # if file_name!='DNSdata_13.csv':
+        #     continue
         file_in_path=os.path.join(dir_in,file_name)
         #输入的文件对象
         file_in=open(file_in_path,'r',encoding='utf-8-sig')
@@ -195,9 +45,11 @@ def process():
                 pass
             elif QorR=='1':#是R 即响应
                 dns_Rstatus(Rstatus)    #统计响应状态情况
+                dns_Rtype(Qname,Qtype,Rstatus,Rjson)             #统计响应种类情况的分析
+                
+                dns_ClientQuery(Client,Rstatus,Qtype,Qname) #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
                 dns_newgTLD(Qname)      #new gTLD情况
-                #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
-                dns_ClientQuery(Client,Rstatus,Qtype,Qname)
+
                 if Rstatus=='0':#统计论文中fail情况
                     dns_Fail(Qname,Qtype,Resolver,Rjson)
                 elif Rstatus=='3':#统计NXDomain情况

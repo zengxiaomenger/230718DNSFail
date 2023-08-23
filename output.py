@@ -2,6 +2,7 @@
 import os
 import csv
 import data
+from easyfun import *
 
 def output0():#输出一些与数据集相关的东西
     dir_out='./result_data'
@@ -20,7 +21,8 @@ def output0():#输出一些与数据集相关的东西
     file_out_dns_status.write(str(data.Num_query)+' '+str(data.Num_response)+'\n')
 
     file_out_dns_status.write('Rcode of DNS Responses:\n')
-    for key,val in data.Dic_state.items():
+    Dic_state_sorted=dict(sorted(data.Dic_state.items(),key=lambda x:x[1],reverse=True))
+    for key,val in Dic_state_sorted.items():
         file_out_dns_status.write(str(key)+' '+str(val)+'\n')
     
     file_out_dns_status.write('Number of manmade:\n')
@@ -35,15 +37,36 @@ def output1():#处理结果并输出
     dir_out='./result_data'
     file_name_type='1_type.csv'#存放不同类型查询数量、成功数量、失败数量、成功率
     file_out_path_type=os.path.join(dir_out,file_name_type)
-
     #不同记录类型输出
     Record_num_all_sorted=dict(sorted(data.Dic_record_num_all.items(),key=lambda x:x[1],reverse=True))
     file_out_type=open(file_out_path_type,'w',newline='')
     csv_out=csv.writer(file_out_type)
     csv_out.writerow(['type','num_all','rate_all','num_success','rate_success'])
     for key,val in Record_num_all_sorted.items():
-        csv_out.writerow([key,val,str(format(val/data.Num_query_all*100,'.2f'))+'%',\
-                data.Dic_record_num_success[key],str(format(data.Dic_record_num_success[key]/val*100,'.2f'))+'%'])
+        csv_out.writerow([key,val,numwith2(val/data.Num_query_all*100)+'%',\
+                data.Dic_record_num_success[key],numwith2(data.Dic_record_num_success[key]/val*100)+'%'])
+    #再输出另一个，不影响好伐
+    file_name_type='1_type2.csv'
+    file_out_path_type=os.path.join(dir_out,file_name_type)
+    #不同记录类型输出
+    file_out_type=open(file_out_path_type,'w',newline='')
+    csv_out=csv.writer(file_out_type)
+    csv_out.writerow(['type','num_all','rate_all',\
+                        #'num_success','rate_success',\#这一行因为所有响应有 但是dns fail响应里没有的type，所以不要了
+                        'rate_no_error_data','rate_no_error_nodata','rate_nxdomain','rate_other_error',\
+                        'num_avelen','num_fqdn','num_sld','num_tld','num_pubsuf'])
+    Dic_type_dic_sorted=dict(sorted(data.Dic_type_dic.items(),key=lambda x:x[1]['num_all'],reverse=True))
+    for key,val in Dic_type_dic_sorted.items():#按总量顺序排序
+        csv_out.writerow([key,val['num_all'],numwith2(val['num_all']/data.Num_response*100)+'%',\
+                #data.Dic_record_num_success[key],numwith2(data.Dic_record_num_success[key]/data.Dic_record_num_all[key]*100)+'%',\
+                numwith2(val['num_no_error_data']/val['num_all']*100)+'%',\
+                numwith2(val['num_no_error_nodata']/val['num_all']*100)+'%',\
+                numwith2(val['num_nxdomain']/val['num_all']*100)+'%',\
+                numwith2(val['num_other_error']/val['num_all']*100)+'%',\
+                numwith2(val['num_qdots']/val['num_all']),\
+                len(val['set_fqdn']),len(val['set_sld']),\
+                len(val['set_tld']),val['num_pubsuf']])
+    file_out_type.close()
 
 def output2():
     dir_out='./result_data'
@@ -64,9 +87,9 @@ def output2():
     #num_a_all是这个域名所有a记录查询的数量，num_a_success是这个域名所有a记录查询的成功数，rate_a_success是这个域名查询的成功率
     csv_out.writerow(['domain','num_a_fail','rate_all','num_a_all','num_a_success','rate_a_fail'])
     for key,val in Dic_domain_num_a_fail_sorted.items():
-        csv_out.writerow([key,val,str(format(val/data.Num_query_a_fail*100,'.2f'))+'%',\
+        csv_out.writerow([key,val,numwith2(val/data.Num_query_a_fail*100)+'%',\
                         data.Dic_domain_num_a_all[key],data.Dic_domain_num_a_success[key],\
-                        str(format(val/data.Dic_domain_num_a_all[key]*100,'.2f'))+'%'])
+                        numwith2(val/data.Dic_domain_num_a_all[key]*100)+'%'])
 
     #不同域名aaaa记录按失败次数高低输出
     for key in data.Dic_domain_num_aaaa_all:#aaaa记录
@@ -78,9 +101,9 @@ def output2():
     #num_aaaa_all是这个域名所有a记录查询的数量，num_aaaa_success是这个域名所有a记录查询的成功数，rate_aaaa_success是这个域名查询的成功率
     csv_out.writerow(['domain','num_aaaa_fail','rate_all','num_aaaa_all','num_aaaa_success','rate_aaaa_fail'])
     for key,val in Dic_domain_num_aaaa_fail_sorted.items():
-        csv_out.writerow([key,val,str(format(val/data.Num_query_aaaa_fail*100,'.2f'))+'%',\
+        csv_out.writerow([key,val,numwith2(val/data.Num_query_aaaa_fail*100)+'%',\
                         data.Dic_domain_num_aaaa_all[key],data.Dic_domain_num_aaaa_success[key],\
-                        str(format(val/data.Dic_domain_num_aaaa_all[key]*100,'.2f'))+'%'])
+                        numwith2(val/data.Dic_domain_num_aaaa_all[key]*100)+'%'])
     
     #单独写个去低频的
     #不同域名a记录按失败次数高低输出
@@ -98,9 +121,9 @@ def output2():
     csv_out.writerow(['domain','num_a_fail','rate_all','num_a_all','num_a_success','rate_a_fail'])
     for key,val in Dic_domain_num_a_fail_sorted.items():
         if data.Dic_domain_num_a_all[key]>=100:
-            csv_out.writerow([key,val,str(format(val/Num_query_a_fail_frequent*100,'.2f'))+'%',\
+            csv_out.writerow([key,val,numwith2(val/Num_query_a_fail_frequent*100)+'%',\
                             data.Dic_domain_num_a_all[key],data.Dic_domain_num_a_success[key],\
-                            str(format(val/data.Dic_domain_num_a_all[key]*100,'.2f'))+'%'])
+                            numwith2(val/data.Dic_domain_num_a_all[key]*100)+'%'])
     #不同域名aaaa记录按失败次数高低输出
     Num_query_aaaa_fail_frequent=0
     for key in data.Dic_domain_num_aaaa_all:
@@ -116,9 +139,9 @@ def output2():
     csv_out.writerow(['domain','num_aaaa_fail','rate_all','num_aaaa_all','num_aaaa_success','rate_aaaa_fail'])
     for key,val in Dic_domain_num_aaaa_fail_sorted.items():
         if data.Dic_domain_num_aaaa_all[key]>=100:
-            csv_out.writerow([key,val,str(format(val/Num_query_aaaa_fail_frequent*100,'.2f'))+'%',\
+            csv_out.writerow([key,val,numwith2(val/Num_query_aaaa_fail_frequent*100)+'%',\
                             data.Dic_domain_num_aaaa_all[key],data.Dic_domain_num_aaaa_success[key],\
-                            str(format(val/data.Dic_domain_num_aaaa_all[key]*100,'.2f'))+'%'])
+                            numwith2(val/data.Dic_domain_num_aaaa_all[key]*100)+'%'])
 
 def output3():#输出公共解析器查询的相关情况
     dir_out='./result_data'
@@ -144,9 +167,9 @@ def output3():#输出公共解析器查询的相关情况
             country='null'
         else:
             [asname,country]=data.Dic_asnum_asname['AS'+str(data.Dic_resolver_asnum[key])].rsplit(', ',1)
-        csv_out.writerow([key,val,str(format(val/data.Num_query_all*100,'.2f'))+'%',\
+        csv_out.writerow([key,val,numwith2(val/data.Num_query_all*100)+'%',\
                     data.Dic_resolver_num_success[key],\
-                    str(format(data.Dic_resolver_num_success[key]/val*100,'.2f'))+'%',\
+                    numwith2(data.Dic_resolver_num_success[key]/val*100)+'%',\
                     asnum,asname,country])
         
     #resolver的a记录查询输出
@@ -163,9 +186,9 @@ def output3():#输出公共解析器查询的相关情况
             country='null'
         else:
             [asname,country]=data.Dic_asnum_asname['AS'+str(data.Dic_resolver_asnum[key])].rsplit(', ',1)
-        csv_out.writerow([key,val,str(format(val/data.Num_query_a_all*100,'.2f'))+'%',\
+        csv_out.writerow([key,val,numwith2(val/data.Num_query_a_all*100)+'%',\
                     data.Dic_resolver_num_a_success[key],\
-                    str(format(data.Dic_resolver_num_a_success[key]/val*100,'.2f'))+'%',\
+                    numwith2(data.Dic_resolver_num_a_success[key]/val*100)+'%',\
                     asnum,asname,country])
     #resolver的aaaa记录查询输出
     Dic_resolver_num_aaaa_all_sorted=dict(sorted(data.Dic_resolver_num_aaaa_all.items(),key=lambda x:x[1],reverse=True))
@@ -181,9 +204,9 @@ def output3():#输出公共解析器查询的相关情况
             country='null'
         else:
             [asname,country]=data.Dic_asnum_asname['AS'+str(data.Dic_resolver_asnum[key])].rsplit(', ',1)
-        csv_out.writerow([key,val,str(format(val/data.Num_query_aaaa_all*100,'.2f'))+'%',\
+        csv_out.writerow([key,val,numwith2(val/data.Num_query_aaaa_all*100)+'%',\
                     data.Dic_resolver_num_aaaa_success[key],\
-                    str(format(data.Dic_resolver_num_aaaa_success[key]/val*100,'.2f'))+'%',\
+                    numwith2(data.Dic_resolver_num_aaaa_success[key]/val*100)+'%',\
                     asnum,asname,country])
     
     #读public_resolver list
@@ -216,15 +239,15 @@ def output3():#输出公共解析器查询的相关情况
             if ip in data.Dic_resolver_num_aaaa_success:
                 public_resolver_num_aaaa_success+=data.Dic_resolver_num_aaaa_success[ip]
         if public_resolver_num_all!=0:
-            rate_success=str(format(public_resolver_num_success/public_resolver_num_all*100,'.2f'))+'%'
+            rate_success=numwith2(public_resolver_num_success/public_resolver_num_all*100)+'%'
         else:
             rate_success='null'
         if public_resolver_num_a_all!=0:
-            rate_a_success=str(format(public_resolver_num_a_success/public_resolver_num_a_all*100,'.2f'))+'%'
+            rate_a_success=numwith2(public_resolver_num_a_success/public_resolver_num_a_all*100)+'%'
         else:
             rate_a_success='null'
         if public_resolver_num_aaaa_all!=0:
-            rate_aaaa_success=str(format(public_resolver_num_aaaa_success/public_resolver_num_aaaa_all*100,'.2f'))+'%'
+            rate_aaaa_success=numwith2(public_resolver_num_aaaa_success/public_resolver_num_aaaa_all*100)+'%'
         else:
             rate_aaaa_success='null'
         csv_out.writerow([public_resolver,public_resolver_num_all,public_resolver_num_success,rate_success,\
