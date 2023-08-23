@@ -17,10 +17,11 @@ def _init_():
     for line in fin:
         tp=''
         pubsuf=''
+        
         if line.isspace():
             continue
         if line[0]=='/' and line[1]=='/':
-            
+
             continue
         if line[0]=='*' and line[1]=='.':
             tp=line[2:]

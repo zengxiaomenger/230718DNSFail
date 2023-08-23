@@ -10,8 +10,8 @@ def process():
     for file_name in tqdm(file_names):#对于每个源文件
         if file_name=='.DS_Store':
             continue
-        # if file_name!='DNSdata_13.csv':
-        #     continue
+        if file_name!='DNSdata_13.csv':
+            continue
         file_in_path=os.path.join(dir_in,file_name)
         #输入的文件对象
         file_in=open(file_in_path,'r',encoding='utf-8-sig')
@@ -46,7 +46,8 @@ def process():
             elif QorR=='1':#是R 即响应
                 dns_Rstatus(Rstatus)    #统计响应状态情况
                 dns_Rtype(Qname,Qtype,Rstatus,Rjson)             #统计响应种类情况的分析
-                
+                dns_Rresolver(Resolver,Rstatus,Rjson)
+
                 dns_ClientQuery(Client,Rstatus,Qtype,Qname) #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
                 dns_newgTLD(Qname)      #new gTLD情况
 

@@ -55,15 +55,14 @@ Dic_resolver_num_aaaa_success={}#该解析器查询aaaa记录成功数
 Dic_resolver_num_aaaa_fail={}#该解析器查询aaaa记录的失败数
 Dic_resolver_asnum={}       #该解析器对应的as号
 Dic_asnum_asname={}         #该as号对应的as名
-
-Dic_resolver_dic={}         #记录不同解析器返回的
-
 Dic_resolver_public_num_all={}#某公共解析器查询总数
 Dic_resolver_public_num_success={}
 Dic_resolver_public_num_a_all={}
 Dic_resolver_public_num_a_success={}
 Dic_resolver_public_num_aaaa_all={}
 Dic_resolver_public_num_aaaa_success={}
+
+Dic_resolver_dic={}         #记录不同解析器返回的各种rcode
 
 #NXDomain
 Dic_nxdomain_num={}

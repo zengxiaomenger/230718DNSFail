@@ -59,6 +59,29 @@ def dns_Rtype(Qname,Qtype,Rstatus,Rjson):#注意这里Qtype是int
     if fqdn2pubsuf(Qname)!='null':
         data.Dic_type_dic[Qtype]['num_pubsuf']+=1
 
+def dns_Rresolver(Resolver,Rstatus,Rjson):
+    if Resolver not in data.Dic_resolver_dic:
+        #先不加fail，直接用那个
+        data.Dic_resolver_dic[Resolver]={}
+        data.Dic_resolver_dic[Resolver]['num_all']=0
+        data.Dic_resolver_dic[Resolver]['num_no_error_data']=0
+        data.Dic_resolver_dic[Resolver]['num_no_error_nodata']=0
+        data.Dic_resolver_dic[Resolver]['num_nxdomain']=0
+        data.Dic_resolver_dic[Resolver]['num_other_error']=0
+
+    data.Dic_resolver_dic[Resolver]['num_all']+=1
+    #rcode相关
+    if Rstatus=='0':
+        Rdic=json.loads(Rjson)
+        if Rdic['rr']!=[]:#不是空响应
+            data.Dic_resolver_dic[Resolver]['num_no_error_data']+=1
+        else:
+            data.Dic_resolver_dic[Resolver]['num_no_error_nodata']+=1
+    elif Rstatus=='3':
+        data.Dic_resolver_dic[Resolver]['num_nxdomain']+=1
+    else:#其他错误
+        data.Dic_resolver_dic[Resolver]['num_other_error']+=1
+
 def dns_ClientQuery(Client,Rstatus,Qtype,Qname):
     #client查询数量
     if Client in data.Dic_client_query_num:

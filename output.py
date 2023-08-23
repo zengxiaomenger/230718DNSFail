@@ -6,7 +6,7 @@ from easyfun import *
 
 def output0():#输出一些与数据集相关的东西
     dir_out='./result_data'
-    file_name_dnsstatus='0_dns_status.csv'
+    file_name_dnsstatus='0_status.csv'
     file_out_path_dns_status=os.path.join(dir_out,file_name_dnsstatus)
     file_out_dns_status=open(file_out_path_dns_status,'w',encoding='utf-8',newline='')
     
@@ -45,6 +45,7 @@ def output1():#处理结果并输出
     for key,val in Record_num_all_sorted.items():
         csv_out.writerow([key,val,numwith2(val/data.Num_query_all*100)+'%',\
                 data.Dic_record_num_success[key],numwith2(data.Dic_record_num_success[key]/val*100)+'%'])
+    
     #再输出另一个，不影响好伐
     file_name_type='1_type2.csv'
     file_out_path_type=os.path.join(dir_out,file_name_type)
@@ -255,6 +256,24 @@ def output3():#输出公共解析器查询的相关情况
                         public_resolver_num_aaaa_all,public_resolver_num_aaaa_success,rate_aaaa_success])
     fin.close()
     fout.close()
+
+    file_name_resolver_status='3_resolver_status.csv'
+    file_out_path_resolver_status=os.path.join(dir_out,file_name_resolver_status)
+    #不同记录类型输出
+    file_out_resolver_status=open(file_out_path_resolver_status,'w',newline='')
+    csv_out=csv.writer(file_out_resolver_status)
+    csv_out.writerow(['resolver','num_all','rate_all',\
+                        'rate_no_error_data','rate_no_error_nodata','rate_nxdomain','rate_other_error'])
+    Dic_resolver_dic_sorted=dict(sorted(data.Dic_resolver_dic.items(),key=lambda x:x[1]['num_all'],reverse=True))
+    for key,val in Dic_resolver_dic_sorted.items():#按总量顺序排序
+        csv_out.writerow([key,val['num_all'],numwith2(val['num_all']/data.Num_response*100)+'%',\
+                numwith2(val['num_no_error_data']/val['num_all']*100)+'%',\
+                numwith2(val['num_no_error_nodata']/val['num_all']*100)+'%',\
+                numwith2(val['num_nxdomain']/val['num_all']*100)+'%',\
+                numwith2(val['num_other_error']/val['num_all']*100)+'%'])
+    file_out_resolver_status.close()
+    
+    
 def output4():
     Dic_nxdomain_num_sorted=dict(sorted(data.Dic_nxdomain_num.items(),key=lambda x:x[1],reverse=True))
     # print(Dic_nxdomain_num_sorted)
