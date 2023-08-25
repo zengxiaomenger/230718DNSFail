@@ -1,4 +1,7 @@
 #data.py
+#以下有关输入输出
+dir_in='./source_data_new'
+dir_out='./result_data'
 # 以下是有关数据统计的
 #0
 #dialog dir
@@ -43,6 +46,7 @@ Dic_domain_num_a_fail={}    #该域名a查询失败数
 Dic_domain_num_aaaa_all={}  #该域名aaaa查询总数
 Dic_domain_num_aaaa_success={}#该域名aaaa查询成功数
 Dic_domain_num_aaaa_fail={} #该域名aaaa查询失败数
+Dic_domain_dic={}
 
 Dic_resolver_num_all={}     #该解析器查询总数
 Dic_resolver_num_success={} #该解析器查询成功数
@@ -65,9 +69,10 @@ Dic_resolver_public_num_aaaa_success={}
 Dic_resolver_dic={}         #记录不同解析器返回的各种rcode
 
 #NXDomain
-Dic_nxdomain_num={}
-Dic_nxsld_num={}
-Dic_nxpubsuf_num={}
+Dic_nxdomain_num={} #nxdomain最多的fqdn
+Dic_nxsld_num={}    #nxdomain最多的nxsld
+Dic_nxclient_num={}     #nxdomain发起最多的client
+Num_nxpubsuf=0
 
 #不同用户发起查询数量
 Dic_client_query_num={}

@@ -59,6 +59,42 @@ def dns_Rtype(Qname,Qtype,Rstatus,Rjson):#注意这里Qtype是int
     if fqdn2pubsuf(Qname)!='null':
         data.Dic_type_dic[Qtype]['num_pubsuf']+=1
 
+def dns_Rdomain(Qname,Rstatus,Rjson):
+    ispubsuf=''
+    if fqdn2pubsuf(Qname)!='null':
+        ispubsuf='pubsuf'
+    else:
+        ispubsuf='!pubsuf'
+    if ispubsuf not in data.Dic_domain_dic:
+        #先不加fail，直接用那个
+        data.Dic_domain_dic[ispubsuf]={}
+        data.Dic_domain_dic[ispubsuf]['num_all']=0
+        data.Dic_domain_dic[ispubsuf]['num_no_error_data']=0
+        data.Dic_domain_dic[ispubsuf]['num_no_error_nodata']=0
+        data.Dic_domain_dic[ispubsuf]['num_nxdomain']=0
+        data.Dic_domain_dic[ispubsuf]['num_other_error']=0
+        data.Dic_domain_dic[ispubsuf]['num_qdots']=0 #标签长度总数
+        data.Dic_domain_dic[ispubsuf]['set_fqdn']=set()
+        data.Dic_domain_dic[ispubsuf]['set_sld']=set()
+        data.Dic_domain_dic[ispubsuf]['set_tld']=set()
+
+    data.Dic_domain_dic[ispubsuf]['num_all']+=1
+    #rcode相关
+    if Rstatus=='0':
+        Rdic=json.loads(Rjson)
+        if Rdic['rr']!=[]:#不是空响应
+            data.Dic_domain_dic[ispubsuf]['num_no_error_data']+=1
+        else:
+            data.Dic_domain_dic[ispubsuf]['num_no_error_nodata']+=1
+    elif Rstatus=='3':
+        data.Dic_domain_dic[ispubsuf]['num_nxdomain']+=1
+    else:#其他错误
+        data.Dic_domain_dic[ispubsuf]['num_other_error']+=1
+    data.Dic_domain_dic[ispubsuf]['num_qdots']+=fqdn2qdots(Qname)
+    data.Dic_domain_dic[ispubsuf]['set_fqdn'].add(Qname)
+    data.Dic_domain_dic[ispubsuf]['set_sld'].add(fqdn2sld(Qname))
+    data.Dic_domain_dic[ispubsuf]['set_tld'].add(fqdn2tld(Qname))
+
 def dns_Rresolver(Resolver,Rstatus,Rjson):
     if Resolver not in data.Dic_resolver_dic:
         #先不加fail，直接用那个
@@ -183,7 +219,7 @@ def dns_Fail(Qname,Qtype,Resolver,Rjson):
             data.Dic_domain_num_aaaa_success[Qname]+=1
             data.Dic_resolver_num_aaaa_success[Resolver]+=1
 
-def dns_NXDomain(Qname):
+def dns_NXDomain(Qname,Client):
     #统计NXDomain信息
     if Qname in data.Dic_nxdomain_num:
         data.Dic_nxdomain_num[Qname]+=1
@@ -197,11 +233,12 @@ def dns_NXDomain(Qname):
     else:
         data.Dic_nxsld_num[sld]=1
 
-    #public_suffix
-    #判断后缀长度增加，有没有在public_suffix里面出现过的
-    pubsuf=fqdn2pubsuf(Qname)
-    if pubsuf!='null':
-        if pubsuf in data.Dic_nxpubsuf_num:
-            data.Dic_nxpubsuf_num[pubsuf]+=1
-        else:
-            data.Dic_nxpubsuf_num[pubsuf]=1
+    #统计client
+    if Client in data.Dic_nxclient_num:
+        data.Dic_nxclient_num[Client]+=1
+    else:
+        data.Dic_nxclient_num[Client]=1
+
+    #统计pubsuf比例
+    if fqdn2pubsuf(Qname)!='null':
+        data.Num_nxpubsuf+=1
