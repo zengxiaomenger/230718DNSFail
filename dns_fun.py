@@ -1,7 +1,36 @@
 import json
 from easyfun import *
 
-def dns_DialogID(now):#DNS会话数量
+def dns_Dialog_sort():
+    pass
+
+def dns_DialogQR(now,QorR,Resolver):
+    if data.Num_dialog_preid!=now:#新会话
+        #会话数量+1
+        data.Num_dialog+=1
+        #之前的记录一下1122233
+        if data.Num_dialog_preid!='-1':#不是第一个
+            #才记录之前的
+            if data.Str_resolver_pre not in data.Dic_resolver_QRdic:
+                data.Dic_resolver_QRdic[data.Str_resolver_pre]={}
+                data.Dic_resolver_QRdic[data.Str_resolver_pre]['all']=0
+            data.Dic_resolver_QRdic[data.Str_resolver_pre]['all']+=1
+            Str_QR=str(data.Num_resolver_Q)+'_'+str(data.Num_resolver_R)
+            if Str_QR not in data.Dic_resolver_QRdic[data.Str_resolver_pre]:
+                data.Dic_resolver_QRdic[data.Str_resolver_pre][Str_QR]=1
+            else:
+                data.Dic_resolver_QRdic[data.Str_resolver_pre][Str_QR]+=1
+        #记录完之前的就重置一下
+        data.Str_resolver_pre=Resolver
+        data.Num_resolver_Q=0
+        data.Num_resolver_R=0
+    if QorR=='0':
+        data.Num_resolver_Q+=1
+    else:
+        data.Num_resolver_R+=1
+    data.Num_dialog_preid=now
+
+def dns_DialogNum(now):#DNS会话数量
     if data.Num_dialog_preid!=now:
         data.Num_dialog+=1
     data.Num_dialog_preid=now

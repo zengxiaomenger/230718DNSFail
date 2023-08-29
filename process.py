@@ -9,7 +9,7 @@ def process():
     for file_name in file_names:#对于每个源文件
         if file_name=='.DS_Store':
             continue
-        if file_name!='2023-08-24-DNS.csv':
+        if file_name!='2023-08-25-DNS.csv':
             continue
         file_in_path=os.path.join(data.dir_in,file_name)
         #输入的文件对象
@@ -18,7 +18,7 @@ def process():
         i=0
         for line in tqdm(csv_in):#对于每一行数据!!!!!
             i+=1
-            # if i>1000000:
+            # if i>10000:
             #     break
             EorI    =   line[3]#69是向外，73是向内
             SorD    =   line[4]#12是单向流，3是双向流
@@ -31,24 +31,26 @@ def process():
             Qname   =   line[124]
             Qtype   =   int(line[125])#该响应的查询种类 （数字类型
             Rjson   =   line[129]
-            if Manmade=='31':#无视所有自造流量 不管qr
-                data.Num_manmade+=1
-                continue
-            dns_DialogID(DiaID)#判断dns会话id
-            dns_DIR(EorI,SorD)#统计流向以及是否有回应
-            #再加一个判断所有域名中的public suffix与非public suffix
-            dns_QorR(QorR)  #统计查询/响应的数量
-            if QorR=='0':#是查询
-                pass
-            elif QorR=='1':#是R 即响应
-                dns_Rstatus(Rstatus)    #统计响应状态情况
-                dns_Rtype(Qname,Qtype,Rstatus,Rjson)             #统计响应种类情况的分析
-                dns_Rdomain(Qname,Rstatus,Rjson)        #pubsuf 非pubsuf相关
-                dns_Rresolver(Resolver,Rstatus,Rjson)   #resolver处理状态相关
-                dns_ClientQuery(Client,Rstatus,Qtype,Qname) #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
-                dns_newgTLD(Qname)      #new gTLD情况
-                if Rstatus=='0':#统计论文中fail情况
-                    dns_Fail(Qname,Qtype,Resolver,Rjson)
-                elif Rstatus=='3':#统计NXDomain情况
-                    dns_NXDomain(Qname,Client)
+            # if Manmade=='31':#无视所有自造流量 不管qr
+            #     data.Num_manmade+=1
+                # continue
+            dns_Dialog_sort()
+            dns_DialogQR(DiaID,QorR,Resolver)#统计DNS会话数量，判断解析器查询个数
+            # dns_DialogNum(DiaID)#判断dns会话id
+            # dns_DIR(EorI,SorD)#统计流向以及是否有回应
+            # #再加一个判断所有域名中的public suffix与非public suffix
+            # dns_QorR(QorR)  #统计查询/响应的数量
+            # if QorR=='0':#是查询
+            #     pass
+            # elif QorR=='1':#是R 即响应
+            #     dns_Rstatus(Rstatus)    #统计响应状态情况
+            #     dns_Rtype(Qname,Qtype,Rstatus,Rjson)             #统计响应种类情况的分析
+            #     dns_Rdomain(Qname,Rstatus,Rjson)        #pubsuf 非pubsuf相关
+            #     dns_Rresolver(Resolver,Rstatus,Rjson)   #resolver处理状态相关
+            #     dns_ClientQuery(Client,Rstatus,Qtype,Qname) #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
+            #     dns_newgTLD(Qname)      #new gTLD情况
+            #     if Rstatus=='0':#统计论文中fail情况
+            #         dns_Fail(Qname,Qtype,Resolver,Rjson)
+            #     elif Rstatus=='3':#统计NXDomain情况
+            #         dns_NXDomain(Qname,Client)
         # break

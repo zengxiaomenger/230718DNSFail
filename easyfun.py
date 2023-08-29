@@ -26,7 +26,7 @@ def judge_recursive(Rdic_rr,Rname,Qname):
                     break
         return tp
 
-def judge_success(Rdic_rr,Qname,Qtype):
+def judge_success(Rdic_rr,Qname,Qtype):#判断dns fail
     #复杂的判别方法是正着找，我们反着找！
     success=0
     for Ritem in Rdic_rr:#对于所有的答案
@@ -37,6 +37,16 @@ def judge_success(Rdic_rr,Qname,Qtype):
         if success==1:
             break
     return success
+
+def judge_priIP(ip):
+    ip_sep4=ip.split('.')
+    if ip_sep4[0]=='10':
+        return True
+    elif ip_sep4[0]=='192' and ip_sep4[1]=='168':
+        return True
+    elif ip_sep4[0]=='172' and int(ip_sep4[1])>=16 and int(ip_sep4[1])<=31:
+        return True
+    return False
 
 def ip2asnum(str_ip):
     reader=awdb.open_database(r'./other_data/IP_basic_single_WGS84.awdb')

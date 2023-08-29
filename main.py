@@ -2,6 +2,7 @@
 import data
 import awdb
 import idna
+import csv
 from process import process
 from output import output
 def _init_():
@@ -31,17 +32,25 @@ def _init_():
         data.List_pubsuf.append(idna.encode(pubsuf).decode())
 
     #读country
-    fin=open('./other_data/country.txt')
+    fin=open('other_data/country.txt')
     for line in fin:
         country=line.strip()
         data.List_country.append(country)
 
     #读 new gTLDs
-    fin=open('./other_data/new_gtlds_1686227471.csv',encoding='utf-8')
+    fin=open('other_data/new_gtlds_1686227471.csv',encoding='utf-8')
     for line in fin:
         tp=line.split(',',1)
         data.List_newgTLDs.append(tp[0].strip())
     fin.close()
+
+    #读public resolver
+    fin=open('other_data/public_resolver_ip.txt')
+    for line in fin:#对于每个公共解析器
+        [public_resolver,ips]=line.split(',',1)
+        ips_list=ips.strip().split(',')#是个list
+        for ip in ips_list:
+            data.Dic_ip_resolver[ip]=public_resolver
 
 if __name__=='__main__':
     _init_()

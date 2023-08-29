@@ -7,6 +7,12 @@ dir_out='./result_data'
 #dialog dir
 Num_dialog=0
 Num_dialog_preid='-1'#之前的会话id判断是否相同
+#记录解析器处理不同DNS事务的QR数量占比
+Num_resolver_Q=0
+Num_resolver_R=0
+Str_resolver_pre=''
+Dic_resolver_QRdic={}
+Dic_resolver_public_QRdic={}
 Dic_dir={}#不同流方向的数量
 #qr
 Num_query=0
@@ -65,7 +71,7 @@ Dic_resolver_public_num_a_all={}
 Dic_resolver_public_num_a_success={}
 Dic_resolver_public_num_aaaa_all={}
 Dic_resolver_public_num_aaaa_success={}
-
+Dic_ip_resolver={}
 Dic_resolver_dic={}         #记录不同解析器返回的各种rcode
 
 #NXDomain
