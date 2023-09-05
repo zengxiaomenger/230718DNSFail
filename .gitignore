@@ -4,4 +4,5 @@ result_data_new/
 result_data/
 other_data/IP_basic_single_WGS84.awdb
 other_data/IP_city_single_BD09_WGS84_ipv6.awdb
+other_data/source_top/
 .DS_Store

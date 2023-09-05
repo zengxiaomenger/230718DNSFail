@@ -1,18 +1,21 @@
 #data.py
 #以下有关输入输出
-dir_in='./source_data_new'
-dir_out='./result_data'
+dir_in='source_data_new'
+dir_out='result_data'
 # 以下是有关数据统计的
 #0
 #dialog dir
 Num_dialog=0
-Num_dialog_preid='-1'#之前的会话id判断是否相同
+Num_dialog_preid='-1'#之前的域名判断是否相同
 #记录解析器处理不同DNS事务的QR数量占比
 Num_resolver_Q=0
 Num_resolver_R=0
 Str_resolver_pre=''
 Dic_resolver_QRdic={}
 Dic_resolver_public_QRdic={}
+Dic_resolver_all_QRdic={}
+Dic_DialogQR01={}
+
 Dic_dir={}#不同流方向的数量
 #qr
 Num_query=0

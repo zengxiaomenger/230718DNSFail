@@ -1,11 +1,10 @@
 #main.py
 import data
-import awdb
 import idna
-import csv
-from process import process
+from process import process_sort_QR,process
+from process6 import process6
 from output import output
-def _init_():
+def init():
     #读asnum2asname
     fin=open('./other_data/asnum2asname.txt',encoding='utf-8')
     for line in fin:
@@ -53,6 +52,9 @@ def _init_():
             data.Dic_ip_resolver[ip]=public_resolver
 
 if __name__=='__main__':
-    _init_()
-    process()
-    output()
+    init()
+    process_sort_QR()
+    
+    # process()
+    # process6()
+    # output()

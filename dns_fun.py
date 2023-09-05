@@ -1,10 +1,30 @@
 import json
-from easyfun import *
+from easy_fun import *
 
-def dns_Dialog_sort():
-    pass
-
-def dns_DialogQR(now,QorR,Resolver):
+def dns_DialogQR01(Rcode,Client,Qname,Qtype):
+    #统计0_1集中的域名top，统计收到0_1集中的client，Rcode分布，Qtype分布
+    data.Dic_DialogQR01['Rcode']['all']+=1
+    data.Dic_DialogQR01['Client']['all']+=1
+    data.Dic_DialogQR01['Qname']['all']+=1
+    data.Dic_DialogQR01['Qtype']['all']+=1
+    if Rcode not in data.Dic_DialogQR01['Rcode']:
+        data.Dic_DialogQR01['Rcode'][Rcode]=1
+    else:
+        data.Dic_DialogQR01['Rcode'][Rcode]+=1
+    if Client not in data.Dic_DialogQR01['Client']:
+        data.Dic_DialogQR01['Client'][Client]=1
+    else:
+        data.Dic_DialogQR01['Client'][Client]+=1
+    if Qname not in data.Dic_DialogQR01['Qname']:
+        data.Dic_DialogQR01['Qname'][Qname]=1
+    else:
+        data.Dic_DialogQR01['Qname'][Qname]+=1
+    if Qtype not in data.Dic_DialogQR01['Qtype']:
+        data.Dic_DialogQR01['Qtype'][Qtype]=1
+    else:
+        data.Dic_DialogQR01['Qtype'][Qtype]+=1
+def dns_DialogQR(now,QorR,Resolver,Client,Rcode,Qtype):#注意QorR是整数，不是字符串！now成了Qname
+    #now是Qname！！！
     if data.Num_dialog_preid!=now:#新会话
         #会话数量+1
         data.Num_dialog+=1
@@ -16,6 +36,9 @@ def dns_DialogQR(now,QorR,Resolver):
                 data.Dic_resolver_QRdic[data.Str_resolver_pre]['all']=0
             data.Dic_resolver_QRdic[data.Str_resolver_pre]['all']+=1
             Str_QR=str(data.Num_resolver_Q)+'_'+str(data.Num_resolver_R)
+            #统计0_1为什么这么多
+            if Str_QR=='0_1':
+                dns_DialogQR01(Rcode,Client,now,Qtype)
             if Str_QR not in data.Dic_resolver_QRdic[data.Str_resolver_pre]:
                 data.Dic_resolver_QRdic[data.Str_resolver_pre][Str_QR]=1
             else:
@@ -24,16 +47,14 @@ def dns_DialogQR(now,QorR,Resolver):
         data.Str_resolver_pre=Resolver
         data.Num_resolver_Q=0
         data.Num_resolver_R=0
-    if QorR=='0':
+    if str(QorR)=='0':
         data.Num_resolver_Q+=1
     else:
         data.Num_resolver_R+=1
     data.Num_dialog_preid=now
-
-def dns_DialogNum(now):#DNS会话数量
-    if data.Num_dialog_preid!=now:
-        data.Num_dialog+=1
-    data.Num_dialog_preid=now
+def dns_sortQR(Client,Resolver,DiaID,QorR,Rcode,Qname,Qtype):
+    pass
+    #这个有空再填坑吧
 
 def dns_DIR(EorI,SorD):
     key=EorI+'_'+SorD
@@ -52,7 +73,7 @@ def dns_Rstatus(Rstatus):
     if Rstatus in data.Dic_state:
         data.Dic_state[Rstatus]+=1
     else:
-        data.Dic_state[Rstatus]=0
+        data.Dic_state[Rstatus]=1
 
 def dns_Rtype(Qname,Qtype,Rstatus,Rjson):#注意这里Qtype是int
     if Qtype not in data.Dic_type_dic:
@@ -215,7 +236,8 @@ def dns_Fail(Qname,Qtype,Resolver,Rjson):
         data.Dic_resolver_num_all[Resolver]=1
         data.Dic_resolver_num_success[Resolver]=0
         #ip2asnum
-        data.Dic_resolver_asnum[Resolver]=ip2asnum(Resolver)
+        # data.Dic_resolver_asnum[Resolver]=ip2asnum(Resolver)
+        data.Dic_resolver_asnum[Resolver]=ip2asnum(Resolver) if '.' in Resolver else ip2asnum6(Resolver)
 
     if Qtype==1:
         if Resolver in data.Dic_resolver_num_a_all:
@@ -232,7 +254,7 @@ def dns_Fail(Qname,Qtype,Resolver,Rjson):
     
     #下面再判断是否成功
     Rdic=json.loads(Rjson)
-    success=judge_success(Rdic['rr'],Qname,Qtype)
+    success=judge_success(Rdic['rr'],Qname,Qtype) if '.' in Resolver else judge_success6(Rdic['rr'],Qname,Qtype)
     if success==1:
         data.Num_query_success+=1
         #记录类型

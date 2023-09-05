@@ -2,15 +2,13 @@
 import os
 import csv
 import data
-from easyfun import *
+import pandas as pd
+from easy_fun import *
 
 def output0():#输出一些与数据集相关的东西
     file_name_dnsstatus='0_status.csv'
     file_out_path_dns_status=os.path.join(data.dir_out,file_name_dnsstatus)
     file_out_dns_status=open(file_out_path_dns_status,'w',encoding='utf-8',newline='')
-    
-    file_out_dns_status.write('Number of dialog:\n')
-    file_out_dns_status.write(str(data.Num_dialog)+'\n')
 
     file_out_dns_status.write('Number of dir:\n')
     for k,v in data.Dic_dir.items():
@@ -123,9 +121,14 @@ def output2():
     csv_out.writerow(['domain','num_a_fail','rate_all','num_a_all','num_a_success','rate_a_fail'])
     for key,val in Dic_domain_num_a_fail_sorted.items():
         if data.Dic_domain_num_a_all[key]>=100:
-            csv_out.writerow([key,val,numwith2(val/Num_query_a_fail_frequent*100)+'%',\
-                            data.Dic_domain_num_a_all[key],data.Dic_domain_num_a_success[key],\
-                            numwith2(val/data.Dic_domain_num_a_all[key]*100)+'%'])
+            if Num_query_a_fail_frequent==0:
+                csv_out.writerow([key,val,'null',\
+                                data.Dic_domain_num_a_all[key],data.Dic_domain_num_a_success[key],\
+                                numwith2(val/data.Dic_domain_num_a_all[key]*100)+'%'])
+            else:
+                csv_out.writerow([key,val,numwith2(val/Num_query_a_fail_frequent*100)+'%',\
+                                data.Dic_domain_num_a_all[key],data.Dic_domain_num_a_success[key],\
+                                numwith2(val/data.Dic_domain_num_a_all[key]*100)+'%'])
     #不同域名aaaa记录按失败次数高低输出
     Num_query_aaaa_fail_frequent=0
     for key in data.Dic_domain_num_aaaa_all:
@@ -144,11 +147,16 @@ def output2():
     csv_out.writerow(['domain','num_aaaa_fail','rate_all','num_aaaa_all','num_aaaa_success','rate_aaaa_fail'])
     for key,val in Dic_domain_num_aaaa_fail_sorted.items():
         if data.Dic_domain_num_aaaa_all[key]>=100:
-            csv_out.writerow([key,val,numwith2(val/Num_query_aaaa_fail_frequent*100)+'%',\
-                            data.Dic_domain_num_aaaa_all[key],data.Dic_domain_num_aaaa_success[key],\
-                            numwith2(val/data.Dic_domain_num_aaaa_all[key]*100)+'%'])
+            if Num_query_aaaa_fail_frequent==0:
+                csv_out.writerow([key,val,'null',\
+                                data.Dic_domain_num_aaaa_all[key],data.Dic_domain_num_aaaa_success[key],\
+                                numwith2(val/data.Dic_domain_num_aaaa_all[key]*100)+'%'])
+            else:
+                csv_out.writerow([key,val,numwith2(val/Num_query_aaaa_fail_frequent*100)+'%',\
+                                data.Dic_domain_num_aaaa_all[key],data.Dic_domain_num_aaaa_success[key],\
+                                numwith2(val/data.Dic_domain_num_aaaa_all[key]*100)+'%'])
     #pubsuf相关
-    file_name_pubsuf='3_domain_pubsuf_status.csv'
+    file_name_pubsuf='2_domain_pubsuf_status.csv'
     file_out_path_pubsuf=os.path.join(data.dir_out,file_name_pubsuf)
     #不同记录类型输出
     file_out_pubsuf=open(file_out_path_pubsuf,'w',newline='')
@@ -183,7 +191,12 @@ def output3():#输出公共解析器查询的相关情况
             asname='null'
             country='null'
         else:
-            [asname,country]=data.Dic_asnum_asname['AS'+str(data.Dic_resolver_asnum[key])].rsplit(', ',1)
+            asnum='AS'+str(data.Dic_resolver_asnum[key])
+            if asnum not in data.Dic_asnum_asname:
+                asname='null'
+                country='null'
+            else:
+                [asname,country]=data.Dic_asnum_asname[asnum].rsplit(', ',1)
         csv_out.writerow([key,val,numwith2(val/data.Num_query_all*100)+'%',\
                     data.Dic_resolver_num_success[key],\
                     numwith2(data.Dic_resolver_num_success[key]/val*100)+'%',\
@@ -231,6 +244,7 @@ def output3():#输出公共解析器查询的相关情况
                     asnum,asname,country])
     
     #读public_resolver list
+    #重写公共解析器！！！！！！！！！！！！！！！！！！！！
     fin=open('./other_data/public_resolver_ip.txt')
     file_name='3_resolver_public.csv'
     fout_path=os.path.join(data.dir_out,file_name)
@@ -277,7 +291,7 @@ def output3():#输出公共解析器查询的相关情况
                         public_resolver_num_a_all,public_resolver_num_a_success,rate_a_success,\
                         public_resolver_num_aaaa_all,public_resolver_num_aaaa_success,rate_aaaa_success])
 
-    file_name='3_resolver_status.csv'
+    file_name='3_status_resolver.csv'
     fout_path=os.path.join(data.dir_out,file_name)
     #不同记录类型输出
     fout=open(fout_path,'w',newline='')
@@ -292,8 +306,9 @@ def output3():#输出公共解析器查询的相关情况
                 numwith2(val['num_nxdomain']/val['num_all']*100)+'%',\
                 numwith2(val['num_other_error']/val['num_all']*100)+'%'])
     #不同类型记录按公共解析器输出
+    #重写公共解析器！！！！！！！！！！！！！！！！！！！！
     fin=open('./other_data/public_resolver_ip.txt')
-    file_name='3_resolver_public_status.csv'
+    file_name='3_status_resolver_public.csv'
     fout_path=os.path.join(data.dir_out,file_name)
     fout=open(fout_path,'w',newline='')
     csv_out=csv.writer(fout)
@@ -322,57 +337,7 @@ def output3():#输出公共解析器查询的相关情况
                             numwith2(public_resolver_num_1/public_resolver_num_all*100)+'%',\
                             numwith2(public_resolver_num_2/public_resolver_num_all*100)+'%',\
                             numwith2(public_resolver_num_3/public_resolver_num_all*100)+'%',\
-                            numwith2(public_resolver_num_4/public_resolver_num_all*100)+'%'])
-    
-def output31():
-    #不同解析器处理的会话QR占比数量
-    file_name='3_resolver_num_DialogQR.csv'
-    fout_path=os.path.join(data.dir_out,file_name)
-    fout=open(fout_path,'w',newline='')
-    csv_out=csv.writer(fout)
-    csv_out.writerow(['resolver','status'])
-    Dic_resolver_QRdic_sorted=dict(sorted(data.Dic_resolver_QRdic.items(),key=lambda x:x[1]['all'],reverse=True))
-    for key,val in Dic_resolver_QRdic_sorted.items():
-        val_sorted=dict(sorted(val.items(),key=lambda x:x[1],reverse=True))
-        csv_out.writerow([key,val_sorted])
-    #不同公共解析器处理的会话QR占比数量
-    #先统计
-    for key,val in Dic_resolver_QRdic_sorted.items():
-        if judge_priIP(key)==True:
-            key='10.0.0.0'
-        #不考虑不是公共解析器的ip
-        if key not in data.Dic_ip_resolver:
-            continue
-        pubres=data.Dic_ip_resolver[key]
-        if pubres not in data.Dic_resolver_public_QRdic:
-            data.Dic_resolver_public_QRdic[pubres]=val
-        else:
-            for k,v in val.items():
-                if k in data.Dic_resolver_public_QRdic[pubres]:
-                    data.Dic_resolver_public_QRdic[pubres][k]+=v
-                else:
-                    data.Dic_resolver_public_QRdic[pubres][k]=v
-    file_name='3_resolver_public_num_DialogQR.csv'
-    fout_path=os.path.join(data.dir_out,file_name)
-    fout=open(fout_path,'w',newline='')
-    csv_out=csv.writer(fout)
-    csv_out.writerow(['public_resolver','status'])
-    Dic_resolver_public_QRdic_sorted=dict(sorted(data.Dic_resolver_public_QRdic.items(),key=lambda x:x[1]['all'],reverse=True))
-    for key,val in Dic_resolver_public_QRdic_sorted.items():
-        val_sorted=dict(sorted(val.items(),key=lambda x:x[1],reverse=True))
-        csv_out.writerow([key,val_sorted])
-    file_name='3_resolver_public_rate_12.csv'
-    fout_path=os.path.join(data.dir_out,file_name)
-    fout=open(fout_path,'w',newline='')
-    csv_out=csv.writer(fout)
-    csv_out.writerow(['public_resolver','1_2_rate'])
-    for key,val in Dic_resolver_public_QRdic_sorted.items():
-        if '1_2' in val:
-            csv_out.writerow([key,numwith2(val['1_2']/val['all']*100)+'%'])
-        else:
-            csv_out.writerow([key,'0.00%'])
-
-    fout.close()
+                            numwith2(public_resolver_num_4/public_resolver_num_all*100)+'%']) 
 
 def output4():
     file_name_nxdomain_rank='4_nxdomain_rank.csv'
@@ -440,11 +405,140 @@ def output5():
     for key,val in Dic_client_query_num_sorted.items():
         csv_out.writerow([key,data.Dic_client_domain_dic[key]])
 
+def output6():
+    #不同解析器处理的会话QR占比数量
+    file_name='6_resolver_num_DialogQR.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['resolver','status'])
+    Dic_resolver_QRdic_sorted=dict(sorted(data.Dic_resolver_QRdic.items(),key=lambda x:x[1]['all'],reverse=True))
+    for key,val in Dic_resolver_QRdic_sorted.items():
+        val_sorted=dict(sorted(val.items(),key=lambda x:x[1],reverse=True))
+        csv_out.writerow([key,val_sorted])
+    #统计 所有 解析器处理的会话QR占比数量
+    data.Dic_resolver_all_QRdic={}
+    data.Dic_resolver_all_QRdic['all']={}
+    for key,val in data.Dic_resolver_QRdic.items():
+        for k,v in val.items():
+            if k not in data.Dic_resolver_all_QRdic['all']:
+                data.Dic_resolver_all_QRdic['all'][k]=v
+            else:
+                data.Dic_resolver_all_QRdic['all'][k]+=v
+    file_name='6_resolver_all_num_DialogQR.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['resolver','status'])
+    for key,val in data.Dic_resolver_all_QRdic.items():
+        val_sorted=dict(sorted(val.items(),key=lambda x:x[1],reverse=True))
+        csv_out.writerow([key,val_sorted])
+    file_name='6_resolver_all_rate_12.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['resolver','num_dialog','0_1','1_2','1_1','0_2','0_3','1_0','2_0','others'])
+    for key,val in data.Dic_resolver_all_QRdic.items():
+        for k in ['0_1','1_2','1_1','0_2','0_3','1_0','2_0']:
+            if k not in val:
+                val[k]=0
+        csv_out.writerow([key,val['all'],\
+                        numwith2(val['0_1']/val['all']*100)+'%',\
+                        numwith2(val['1_2']/val['all']*100)+'%',\
+                        numwith2(val['1_1']/val['all']*100)+'%',\
+                        numwith2(val['0_2']/val['all']*100)+'%',\
+                        numwith2(val['0_3']/val['all']*100)+'%',\
+                        numwith2(val['1_0']/val['all']*100)+'%',\
+                        numwith2(val['2_0']/val['all']*100)+'%',\
+                        numwith2((val['all']-val['0_1']-val['1_2']-val['1_1']-val['0_2']\
+                                    -val['0_3']-val['1_0']-val['2_0'])/val['all']*100)+'%'])
+    #不同公共解析器处理的会话QR占比数量
+    #先统计
+    for key,val in Dic_resolver_QRdic_sorted.items():
+        if judge_priIP(key)==True:
+            key='10.0.0.0'
+        #不考虑不是公共解析器的ip
+        elif key not in data.Dic_ip_resolver:
+            continue
+        pubres=data.Dic_ip_resolver[key]
+        if pubres not in data.Dic_resolver_public_QRdic:
+            data.Dic_resolver_public_QRdic[pubres]=val
+        else:
+            for k,v in val.items():
+                if k in data.Dic_resolver_public_QRdic[pubres]:
+                    data.Dic_resolver_public_QRdic[pubres][k]+=v
+                else:
+                    data.Dic_resolver_public_QRdic[pubres][k]=v
+    file_name='6_resolver_public_num_DialogQR.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['public_resolver','status'])
+    Dic_resolver_public_QRdic_sorted=dict(sorted(data.Dic_resolver_public_QRdic.items(),key=lambda x:x[1]['all'],reverse=True))
+    for key,val in Dic_resolver_public_QRdic_sorted.items():
+        val_sorted=dict(sorted(val.items(),key=lambda x:x[1],reverse=True))
+        csv_out.writerow([key,val_sorted])
+    file_name='6_resolver_public_rate_12.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['public_resolver','num_dialog','0_1','1_2','1_1','0_2','0_3','1_0','2_0','others'])
+    for key,val in Dic_resolver_public_QRdic_sorted.items():
+        for k in ['0_1','1_2','1_1','0_2','0_3','1_0','2_0']:
+            if k not in val:
+                val[k]=0
+        csv_out.writerow([key,val['all'],\
+                        numwith2(val['0_1']/val['all']*100)+'%',\
+                        numwith2(val['1_2']/val['all']*100)+'%',\
+                        numwith2(val['1_1']/val['all']*100)+'%',\
+                        numwith2(val['0_2']/val['all']*100)+'%',\
+                        numwith2(val['0_3']/val['all']*100)+'%',\
+                        numwith2(val['1_0']/val['all']*100)+'%',\
+                        numwith2(val['2_0']/val['all']*100)+'%',\
+                        numwith2((val['all']-val['0_1']-val['1_2']-val['1_1']-val['0_2']\
+                                    -val['0_3']-val['1_0']-val['2_0'])/val['all']*100)+'%'])
+    #下面输出0_1比较多的信息
+    file_name='6_DialogQR01_Rcode.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='',encoding='utf-8')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['Rcode','num'])
+    Dic_DialogQR01_Rcode_sorted=dict(sorted(data.Dic_DialogQR01['Rcode'].items(),key=lambda x:x[1],reverse=True))
+    for key,val in Dic_DialogQR01_Rcode_sorted.items():
+        csv_out.writerow([key,val])
+
+    file_name='6_DialogQR01_Client.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='',encoding='utf-8')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['Client','num'])
+    Dic_DialogQR01_Client_sorted=dict(sorted(data.Dic_DialogQR01['Client'].items(),key=lambda x:x[1],reverse=True))
+    for key,val in Dic_DialogQR01_Client_sorted.items():
+        csv_out.writerow([key,val])
+
+    file_name='6_DialogQR01_Qname.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='',encoding='utf-8')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['Qname','num'])
+    Dic_DialogQR01_Qname_sorted=dict(sorted(data.Dic_DialogQR01['Qname'].items(),key=lambda x:x[1],reverse=True))
+    for key,val in Dic_DialogQR01_Qname_sorted.items():
+        csv_out.writerow([key,val])
+
+    file_name='6_DialogQR01_Qtype.csv'
+    fout_path=os.path.join(data.dir_out,file_name)
+    fout=open(fout_path,'w',newline='',encoding='utf-8')
+    csv_out=csv.writer(fout)
+    csv_out.writerow(['Qtype','num'])
+    Dic_DialogQR01_Qtype_sorted=dict(sorted(data.Dic_DialogQR01['Qtype'].items(),key=lambda x:x[1],reverse=True))
+    for key,val in Dic_DialogQR01_Qtype_sorted.items():
+        csv_out.writerow([key,val])
+
 def output():
-    # output0()
-    # output1()
-    # output2()
-    # output3()
-    output31()
-    # output4()
-    # output5()
+    output0()
+    output1()
+    output2()
+    output3()
+    output4()
+    output5()
+    # output6()
