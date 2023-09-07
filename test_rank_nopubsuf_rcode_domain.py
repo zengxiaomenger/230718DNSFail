@@ -14,8 +14,8 @@ Dic_domain3_num={}
 i=0
 for line in tqdm(csv_in):
     i+=1
-    if i>5000000:
-        break
+    # if i>5000000:
+    #     break
     Client  =   line[24]#用户ip
     Resolver=   line[33]#解析器ip
     DiaID   =   line[112]#dns事务ID 判断有多少个会话
