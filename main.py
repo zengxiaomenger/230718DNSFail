@@ -53,8 +53,8 @@ def init():
 
 if __name__=='__main__':
     init()
-    process_sort_QR()
+    # process_sort_QR()
     
-    # process()
+    process()
     # process6()
-    # output()
+    output()

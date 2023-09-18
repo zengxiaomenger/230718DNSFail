@@ -57,8 +57,9 @@ def process():
     for file_name in file_names:#对于每个源文件
         if file_name=='.DS_Store':
             continue
-        if file_name!='2023-08-31-DNS.csv':
+        if '23-08' in file_name:
             continue
+        print(file_name)
         file_in_path=os.path.join(data.dir_in,file_name)
         #输入的文件对象
         file_in=open(file_in_path,'r',encoding='utf-8-sig')
@@ -66,7 +67,7 @@ def process():
         i=0
         for line in tqdm(csv_in):#对于每一行数据!!!!!
             i+=1
-            # if i>10000:
+            # if i>100000:
             #     break
             EorI    =   line[3]#69是向外，73是向内
             SorD    =   line[4]#12是单向流，3是双向流
@@ -85,7 +86,7 @@ def process():
             dns_DIR(EorI,SorD)#统计流向以及是否有回应
             # #再加一个判断所有域名中的public suffix与非public suffix
             dns_QorR(QorR)  #统计查询/响应的数量
-            dns_sortQR(Client,Resolver,DiaID,QorR,Rcode,Qname,Qtype)
+            # dns_sortQR(Client,Resolver,DiaID,QorR,Rcode,Qname,Qtype)
             if QorR=='0':#是查询
                 pass
             elif QorR=='1':#是R 即响应
@@ -96,7 +97,8 @@ def process():
                 dns_ClientQuery(Client,Rcode,Qtype,Qname) #用户查询数量、Rstatus各自数量、Qtype各自数量、domain各自数量
                 dns_newgTLD(Qname)      #new gTLD情况
                 if Rcode=='0':#统计论文中fail情况
-                    dns_Fail(Qname,Qtype,Resolver,Rjson)
+                    # dns_Fail(Qname,Qtype,Resolver,Rjson)
+                    pass
                 elif Rcode=='3':#统计NXDomain情况
                     dns_NXDomain(Qname,Client)
-        # breakf
+        # break
